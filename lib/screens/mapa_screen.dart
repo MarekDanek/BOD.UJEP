@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../widgets/point_popup.dart';
 
 class MapaScreen extends StatelessWidget {
   const MapaScreen({super.key});
@@ -30,7 +31,14 @@ class MapaScreen extends StatelessWidget {
                 height: 50,
                 child: GestureDetector(
                   onTap: () {
-                    print("Klik na bod!");
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true, // Povolí oknu roztáhnout se do výšky
+                      backgroundColor: Colors.transparent, // Průhledné pozadí za zaoblenými rohy okna
+                      builder: (context) {
+                        return const PointPopup(); // Načte design okna z druhého souboru
+                      },
+                    );
                   },
                   child: const Icon(Icons.location_on, color: Colors.red, size: 40),
                 ),
