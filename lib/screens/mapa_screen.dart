@@ -12,7 +12,7 @@ class MapaScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      appBar: const MyAppBar(titulek: 'BOD. UJEP - Mapa'),
+      appBar: const MyAppBar(titulek: 'BOD. UJEP'),
       bottomNavigationBar: const BottomNav(),
       body: FlutterMap(
         options: MapOptions(
@@ -34,10 +34,10 @@ class MapaScreen extends StatelessWidget {
                   onTap: () {
                     showModalBottomSheet(
                       context: context,
-                      isScrollControlled: true, // Povolí oknu roztáhnout se do výšky
-                      backgroundColor: Colors.transparent, // Průhledné pozadí za zaoblenými rohy okna
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
                       builder: (context) {
-                        return const PointPopup(); // Načte design okna z druhého souboru
+                        return const PointPopup();
                       },
                     );
                   },
