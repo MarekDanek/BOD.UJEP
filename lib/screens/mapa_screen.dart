@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../widgets/point_popup.dart';
+import '../widgets/bottom_nav.dart';
+import '../widgets/app_bar.dart';
 
 class MapaScreen extends StatelessWidget {
   const MapaScreen({super.key});
@@ -9,10 +11,9 @@ class MapaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('BOD. UJEP - Mapa'),
-        backgroundColor: Colors.amber,
-      ),
+      extendBody: true,
+      appBar: const MyAppBar(titulek: 'BOD. UJEP - Mapa'),
+      bottomNavigationBar: const BottomNav(),
       body: FlutterMap(
         options: MapOptions(
           initialCenter: const LatLng(50.6607, 14.0322),
