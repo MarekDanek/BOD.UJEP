@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: bod_databaze
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: heslo123
+      POSTGRES_DB: bod_app
+    ports:
+      - "5432:5432"
+    volumes:
+      #"Při prvním spuštění vezmi soubor init.sql a vytvoř podle něj tabulky"
+      #- ./init.sql:/docker-entrypoint-initdb.d/init.sql
