@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../utils/logika_cesty.dart';
 import '../widgets/mise_popup.dart';
 import '../widgets/point_pop_up.dart';
 import '../widgets/app_bar.dart';
@@ -17,6 +18,18 @@ class MapaScreen extends StatefulWidget {
 class _MapaScreenState extends State<MapaScreen> {
   int stavHry = 0;
   int aktualniBod = 1;
+  List<LatLng> trasaPoChodniku = [];
+
+  Future<void> vypocitejTrasu() async {
+    if (aktualniBod < 2) return;
+
+    final bodyKPropojeni = trasaMise.sublist(0, aktualniBod);
+    final novaTrasa = await LogikaCesty.ziskejTrasuPoChodniku(bodyKPropojeni);
+
+    setState(() {
+      trasaPoChodniku = novaTrasa;
+    });
+  }
 
   void ukazStartPopup() {
     showModalBottomSheet(
@@ -29,6 +42,7 @@ class _MapaScreenState extends State<MapaScreen> {
           onVyrazit: () {
             setState(() {
               stavHry = 1;
+              trasaPoChodniku.clear();
             });
           },
         );
@@ -42,18 +56,23 @@ class _MapaScreenState extends State<MapaScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return BodPopup(
+        return PointPopup(
           bodData: trasaMise[aktualniBod - 1],
+          miseData: dataMise,
           onPokracovat: () {
-            setState(() {
-              if (aktualniBod < trasaMise.length) {
+            if (aktualniBod < trasaMise.length) {
+              setState(() {
                 aktualniBod++;
                 stavHry = 1;
-              } else {
+              });
+              vypocitejTrasu();
+            } else {
+              setState(() {
                 stavHry = 0;
                 aktualniBod = 1;
-              }
-            });
+                trasaPoChodniku.clear();
+              });
+            }
           },
         );
       },
@@ -103,7 +122,7 @@ class _MapaScreenState extends State<MapaScreen> {
               ),
             ),
             Positioned(
-              top: 8,
+              top: 18,
               child: Text(
                 point.id.toString(),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
@@ -152,6 +171,7 @@ class _MapaScreenState extends State<MapaScreen> {
                 setState(() {
                   stavHry = 0;
                   aktualniBod = 1;
+                  trasaPoChodniku.clear();
                 });
               },
             ),
@@ -167,11 +187,11 @@ class _MapaScreenState extends State<MapaScreen> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'cz.ujep.bod',
               ),
-              if (stavHry > 0)
+              if (stavHry > 0 && trasaPoChodniku.isNotEmpty)
                 PolylineLayer(
                   polylines: [
                     Polyline(
-                      points: trasaMise.sublist(0, aktualniBod).map((p) => LatLng(p.lat, p.lon)).toList(),
+                      points: trasaPoChodniku,
                       color: Colors.blueAccent.withOpacity(0.7),
                       strokeWidth: 5.0,
                     ),

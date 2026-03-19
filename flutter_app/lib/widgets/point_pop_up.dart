@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import '../data/mise_data.dart';
 
-class BodPopup extends StatelessWidget {
+class PointPopup extends StatelessWidget {
   final BodMise bodData;
+  final Mise miseData;
   final VoidCallback onPokracovat;
 
-  const BodPopup({
+  const PointPopup({
     super.key,
     required this.bodData,
+    required this.miseData,
     required this.onPokracovat,
   });
 
@@ -43,7 +45,7 @@ class BodPopup extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    bodData.nazevBodu,
+                    miseData.nazev,
                     style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Colors.black, letterSpacing: -0.5),
                   ),
                   Container(
@@ -67,6 +69,14 @@ class BodPopup extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Text(
+                bodData.nazevBodu,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Text(
                 bodData.podnadpis,
                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
               ),
@@ -83,7 +93,7 @@ class BodPopup extends StatelessWidget {
             Image.asset(
               bodData.obrazekCesta,
               width: double.infinity,
-              height: 200,
+              height: 300,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
                 return Container(
@@ -100,7 +110,7 @@ class BodPopup extends StatelessWidget {
                 style: const TextStyle(fontSize: 15, height: 1.2, color: Colors.black),
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             Center(
               child: InkWell(
                 onTap: () {
