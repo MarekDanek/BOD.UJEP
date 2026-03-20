@@ -38,6 +38,7 @@ dependencies:
   latlong2: ^0.9.1
   http: ^1.2.0
   flutter_svg: ^2.0.10
+  geolocator: ^11.0.0
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,15 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+
+  fonts:
+    - family: Topol
+      fonts:
+        - asset: assets/fonts/Topol_Regular.otf
+        - asset: assets/fonts/Topol_Light.otf
+          weight: 300
+        - asset: assets/fonts/Topol_Bold.otf
+          weight: 700
 
   # To add assets to your application, add an assets section, like this:
   # assets:

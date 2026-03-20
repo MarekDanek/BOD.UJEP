@@ -12,6 +12,9 @@ class BodUjepApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BOD.UJEP',
+      theme: ThemeData(
+      fontFamily: "Topol"
+      ),
       home: const StartScreen(),
     );
   }

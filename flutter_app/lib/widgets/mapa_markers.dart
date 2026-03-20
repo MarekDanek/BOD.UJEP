@@ -76,6 +76,22 @@ class MarkerBuilder {
     );
   }
 
+   static Marker buildUserMarker(LatLng point) {
+    return Marker(
+      point: point,
+      width: 24,
+      height: 24,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 3),
+          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
+        ),
+      ),
+    );
+  }
+
   static Marker buildBigMarker(BodMise point) {
     return Marker(
       point: LatLng(point.lat, point.lon),
@@ -97,3 +113,4 @@ class MarkerBuilder {
     );
   }
 }
+

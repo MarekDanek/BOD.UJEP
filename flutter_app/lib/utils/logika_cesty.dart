@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
-import '../data/mise_data.dart';
 
 class LogikaCesty {
-  static Future<List<LatLng>> ziskejTrasuPoChodniku(List<BodMise> body) async {
+  // ZMĚNA: Funkce teď bere List<LatLng> místo List<BodMise>
+  static Future<List<LatLng>> ziskejTrasuPoChodniku(List<LatLng> body) async {
     if (body.length < 2) return [];
 
-    final souradnice = body.map((b) => '${b.lon},${b.lat}').join(';');
+    // ZMĚNA: LatLng používá vlastnosti .longitude a .latitude
+    final souradnice = body.map((b) => '${b.longitude},${b.latitude}').join(';');
     final url = 'http://router.project-osrm.org/route/v1/foot/$souradnice?overview=full&geometries=geojson';
 
     try {
