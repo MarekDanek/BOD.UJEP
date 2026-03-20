@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AppBarPlay extends StatelessWidget implements PreferredSizeWidget {
   final String nazevMise;
@@ -18,35 +19,50 @@ class AppBarPlay extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return Container(
       color: const Color(0xFFFAED41),
-      padding: const EdgeInsets.only(top: 50, left: 16, right: 16, bottom: 16),
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 5, left: 20, right: 20, bottom: 10),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              IconButton(
-                icon: const Icon(Icons.menu, color: Colors.black, size: 30),
-                onPressed: onMenuClick,
+              GestureDetector(
+                onTap: onMenuClick,
+                child: const Icon(Icons.menu, color: Colors.black, size: 28),
               ),
-              const Icon(Icons.directions_walk, size: 40, color: Colors.black),
-              IconButton(
-                icon: const Icon(Icons.close, color: Colors.black, size: 30),
-                onPressed: onCloseClick,
+              // ZDE JE ZMĚNA:
+             Expanded(
+                child: Transform.translate(
+                  offset: const Offset(15, 0),
+                  child: Transform.scale(
+                    scale: 5,
+                    child: SvgPicture.asset(
+                      'assets/logo.svg',
+                      height: 40,
+                    ),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: onCloseClick,
+                child: const Icon(Icons.close, color: Colors.black, size: 28),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 nazevMise,
                 style: const TextStyle(
-                  fontSize: 26,
+                  fontSize: 24,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
-                  letterSpacing: -0.5,
+                  decoration: TextDecoration.underline,
                 ),
               ),
               Text(
@@ -65,5 +81,5 @@ class AppBarPlay extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(130);
+  Size get preferredSize => const Size.fromHeight(115);
 }
