@@ -7,7 +7,7 @@ import '../utils/dialog_manager.dart';
 import '../utils/gps_logika.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/app_bar_play.dart';
-import '../widgets/mapa_markers.dart';
+import '../widgets/mapa_markers.dart'; // Ujisti se, že tady máš MarkerBuilder
 import '../widgets/panel_presun.dart';
 import '../widgets/panel_dorazil.dart';
 import '../widgets/gps_error_panel.dart';
@@ -15,6 +15,7 @@ import '../widgets/center_user_button.dart';
 import '../widgets/radar_layer.dart';
 import '../data/mise_data.dart';
 import '../widgets/map_zoom_buttons.dart';
+import '../widgets/audio_player.dart'; // <--- PŘIDANÝ IMPORT PŘEHRÁVAČE
 
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
@@ -27,6 +28,9 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
   int stavHry = 0;
   int aktualniBod = 1;
   List<LatLng> trasaPoChodniku = [];
+  List<LatLng> pevnaTrasa = [];
+  BodMise? aktivniBonus;
+  bool skrytyPrehravac = false;
 
   final MapController _mapController = MapController();
   StreamSubscription? _positionSub;
@@ -71,6 +75,10 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
           final newLatLng = LatLng(newPos.latitude, newPos.longitude);
           setState(() => _userLatLng = newLatLng);
           if (_followUser) _mapController.move(newLatLng, _mapController.camera.zoom);
+
+          if (stavHry == 1) {
+             vypocitejTrasu();
+          }
         },
         onError: (e) {
           if (!mounted) return;
@@ -89,19 +97,16 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
     _mapController.move(_userLatLng!, 18.0);
   }
 
- Future<void> vypocitejTrasu() async {
-    // Pokud nemáme GPS polohu nebo jsme na konci, nepočítáme
+  Future<void> vypocitejTrasu() async {
     if (_userLatLng == null || aktualniBod > trasaMise.length) return;
 
     final cilovyBod = trasaMise[aktualniBod - 1];
 
-    // TADY JE TA KRÁSA: Prostě jen vytvoříme seznam dvou souřadnic (Hráč -> Cíl)
     final bodyKPropojeni = [
       _userLatLng!,
       LatLng(cilovyBod.lat, cilovyBod.lon),
     ];
 
-    // A pošleme je do naší upravené univerzální funkce
     final novaTrasa = await LogikaCesty.ziskejTrasuPoChodniku(bodyKPropojeni);
 
     if (mounted) {
@@ -111,28 +116,75 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
     }
   }
 
-void onStartVyrazit() {
+  Future<void> vypocitejHistorickouTrasu() async {
+    if (aktualniBod < 3) {
+      setState(() => pevnaTrasa = []);
+      return;
+    }
+
+    final bodyKPropojeni = trasaMise
+        .sublist(0, aktualniBod - 1)
+        .map((b) => LatLng(b.lat, b.lon))
+        .toList();
+
+    final novaTrasa = await LogikaCesty.ziskejTrasuPoChodniku(bodyKPropojeni);
+
+    if (mounted) {
+      setState(() {
+        pevnaTrasa = novaTrasa;
+      });
+    }
+  }
+
+  void onStartVyrazit() {
     setState(() {
       stavHry = 1;
       aktualniBod = 1;
       trasaPoChodniku.clear();
+      pevnaTrasa.clear();
+      aktivniBonus = null;
+      skrytyPrehravac = false;
     });
     vypocitejTrasu();
   }
 
-  void onPribehPokracovat() {
+  void _posunNaDalsiBod() {
     if (aktualniBod < trasaMise.length) {
       setState(() {
         aktualniBod++;
         stavHry = 1;
       });
       vypocitejTrasu();
+      vypocitejHistorickouTrasu();
     } else {
       setState(() {
         stavHry = 0;
         aktualniBod = 1;
         trasaPoChodniku.clear();
+        pevnaTrasa.clear();
+        aktivniBonus = null;
+        skrytyPrehravac = false;
       });
+    }
+  }
+
+  void onPribehPokracovat() {
+    final soucasnyBod = trasaMise[aktualniBod - 1];
+
+    if (soucasnyBod.bonusNazev != null) {
+      DialogManager.ukazBonusPopup(
+        context: context,
+        bodData: soucasnyBod,
+        onPokracovat: () {
+          setState(() {
+            aktivniBonus = soucasnyBod;
+            skrytyPrehravac = false;
+          });
+          _posunNaDalsiBod();
+        },
+      );
+    } else {
+      _posunNaDalsiBod();
     }
   }
 
@@ -158,6 +210,9 @@ void onStartVyrazit() {
                   stavHry = 0;
                   aktualniBod = 1;
                   trasaPoChodniku.clear();
+                  pevnaTrasa.clear();
+                  aktivniBonus = null;
+                  skrytyPrehravac = false;
                 });
               },
             ),
@@ -182,23 +237,53 @@ void onStartVyrazit() {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'cz.ujep.bod',
               ),
+
+              // 1. ČERNÁ ČÁRA (Historie)
+              if (pevnaTrasa.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: pevnaTrasa,
+                      color: Colors.black.withOpacity(0.5),
+                      strokeWidth: 5.0
+                    ),
+                  ],
+                ),
+
+              // 2. ŽLUTÁ ČÁRA (Budoucnost)
               if (stavHry > 0 && trasaPoChodniku.isNotEmpty)
                 PolylineLayer(
                   polylines: [
-                    Polyline(points: trasaPoChodniku, color: Colors.blueAccent.withOpacity(0.7), strokeWidth: 5.0),
+                    Polyline(
+                      points: trasaPoChodniku,
+                      color: const Color(0xFFFAED41).withOpacity(0.9),
+                      strokeWidth: 5.0
+                    ),
                   ],
                 ),
+
               if (_userLatLng != null) RadarLayer(position: _userLatLng!, animation: _radarAnimation),
+
+              // 3. VYKRESLENÍ ZNAČEK
               MarkerLayer(
                 markers: [
                   if (_userLatLng != null) MarkerBuilder.buildUserMarker(_userLatLng!),
+
                   if (stavHry == 0) MarkerBuilder.buildStartMarker(trasaMise.first, onMarkerTap),
-                  if (stavHry == 1) MarkerBuilder.buildNormalMarker(trasaMise[aktualniBod - 1], onMarkerTap),
-                  if (stavHry == 2) MarkerBuilder.buildBigMarker(trasaMise[aktualniBod - 1]),
+
+                  if (stavHry > 0)
+                    for (int i = 0; i < aktualniBod; i++)
+                      if (i == aktualniBod - 1)
+                        stavHry == 1
+                            ? MarkerBuilder.buildNormalMarker(trasaMise[i], onMarkerTap)
+                            : MarkerBuilder.buildBigMarker(trasaMise[i])
+                      else
+                        MarkerBuilder.buildSmallDotMarker(trasaMise[i]),
                 ],
               ),
             ],
           ),
+
           Positioned(
             top: 20,
             right: 20,
@@ -206,6 +291,37 @@ void onStartVyrazit() {
           ),
 
           if (_locationError != null) GpsErrorPanel(errorText: _locationError!, onRetry: _startLocationTracking),
+
+          // TLAČÍTKO PRO ZNOVUOTEVŘENÍ PŘEHRÁVAČE (Ukáže se, jen když je skrytý)
+          if (aktivniBonus != null && stavHry == 1 && skrytyPrehravac)
+            Positioned(
+              bottom: 160, // Kousek nad panelem "Přesun"
+              right: 20,
+              child: FloatingActionButton(
+                heroTag: 'reopenAudioBtn',
+                backgroundColor: const Color(0xFFFAED41),
+                mini: true,
+                child: const Icon(Icons.music_note, color: Colors.black),
+                onPressed: () {
+                  setState(() => skrytyPrehravac = false); // Otevře přehrávač zpět!
+                },
+              ),
+            ),
+
+          // SAMOTNÝ PŘEHRÁVAČ HUDBY (Ukáže se, když není skrytý)
+          if (aktivniBonus != null && stavHry == 1 && !skrytyPrehravac)
+            Positioned(
+              bottom: 150,
+              left: 0,
+              right: 0,
+              child: MiniAudioPlayer(
+                nazevSkladby: aktivniBonus!.bonusNazev!,
+                audioPath: aktivniBonus!.bonusAudioPath ?? 'assets/audio/default.mp3',
+                onZavrit: () {
+                  setState(() => skrytyPrehravac = true); // Změna: Už nenulujeme bonus, jen ho skryjeme
+                },
+              ),
+            ),
 
           if (stavHry == 1) PanelPresun(bodData: trasaMise[aktualniBod - 1], aktualniBod: aktualniBod),
           if (stavHry == 2) PanelDorazil(bodData: trasaMise[aktualniBod - 1], aktualniBod: aktualniBod, onOtevrit: () => DialogManager.ukazPribehPopup(context: context, bodData: trasaMise[aktualniBod - 1], miseData: dataMise, onPokracovat: onPribehPokracovat)),

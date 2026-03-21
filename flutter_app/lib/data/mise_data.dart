@@ -36,6 +36,10 @@ class BodMise {
   final double lat;
   final double lon;
 
+  final String? bonusNazev;
+  final String? bonusObrazek;
+  final String? bonusAudioPath;
+
   BodMise({
     required this.id,
     required this.nazevBodu,
@@ -45,6 +49,9 @@ class BodMise {
     required this.textCast2,
     required this.lat,
     required this.lon,
+    this.bonusNazev,
+    this.bonusObrazek,
+    this.bonusAudioPath,
   });
 }
 
@@ -82,6 +89,10 @@ final List<BodMise> trasaMise = [
     textCast2: 'Přesně tak, jak má znít dobrý den.\n\nKampus kolem mě pokračoval ve svém pomalém životě.\n\nJá taky.',
     lat: 50.6650428,
     lon: 14.0257067,
+
+    bonusNazev: 'Tokio Drift — bejby navždy',
+    bonusObrazek: 'assets/BOD2_2.png',
+    bonusAudioPath: 'assets/audio/music.mp3',
   ),
   BodMise(
     id: 3,

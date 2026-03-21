@@ -29,6 +29,22 @@ class MarkerBuilder {
     );
   }
 
+  static Marker buildSmallDotMarker(BodMise bod) {
+    return Marker(
+      point: LatLng(bod.lat, bod.lon),
+      width: 16, // Malá velikost
+      height: 16,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFFAED41),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.black, width: 2), // Černý okraj
+        ),
+      ),
+    );
+  }
+
+
   static Marker buildNormalMarker(BodMise point, VoidCallback onTap) {
     return Marker(
       point: LatLng(point.lat, point.lon),
@@ -113,4 +129,5 @@ class MarkerBuilder {
     );
   }
 }
+
 
