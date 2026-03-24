@@ -230,7 +230,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             options: MapOptions(
               initialCenter: _userLatLng ?? const LatLng(50.6653, 14.0255),
               initialZoom: 16.5,
-              minZoom: 6.5,
+              minZoom: 10.0,
               maxZoom: 19.0,
               onPositionChanged: (position, hasGesture) {
                 if (hasGesture && _followUser) setState(() => _followUser = false);
