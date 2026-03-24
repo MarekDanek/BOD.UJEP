@@ -277,6 +277,8 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                             : MarkerBuilder.buildBigMarker(trasaMise[i])
                       else
                         MarkerBuilder.buildSmallDotMarker(trasaMise[i]),
+                  //Testovací Bod
+                  MarkerBuilder.buildSmallDotMarker(TestBod),
                 ],
               ),
             ],

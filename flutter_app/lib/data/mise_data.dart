@@ -125,3 +125,15 @@ BodMise(
     lon: 14.0246164,
   ),
 ];
+
+// Testovací bod
+final TestBod = BodMise(
+  id: 6,
+  nazevBodu: 'Testovací-BoD',
+  podnadpis: 'TEST',
+  textCast1: 'Test',
+  obrazekCesta: 'Test',
+  textCast2: 'Gratulujeme,\ndokončil jsi misi!',
+  lat: 50.690399749967014,
+  lon: 14.093647903993505,
+);
