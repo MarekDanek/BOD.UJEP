@@ -11,7 +11,7 @@ class BodUjepApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'BOD.UJEP',
+      title: 'Navandr',
       theme: ThemeData(
       fontFamily: "Topol"
       ),

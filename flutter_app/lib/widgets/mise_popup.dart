@@ -31,7 +31,7 @@ class MisePopup extends StatelessWidget {
                 width: 40,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
+                  color: const Color(0x80000000),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

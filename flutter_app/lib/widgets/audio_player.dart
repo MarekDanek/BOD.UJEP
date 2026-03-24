@@ -44,10 +44,11 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
     });
 
     _audioPlayer.onPlayerComplete.listen((event) {
-      if (mounted) setState(() {
+      if (mounted){ setState(() {
         _isPlaying = false;
         _position = Duration.zero;
       });
+     }
     });
   }
 

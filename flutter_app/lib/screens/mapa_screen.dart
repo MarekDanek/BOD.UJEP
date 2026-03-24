@@ -7,7 +7,7 @@ import '../utils/dialog_manager.dart';
 import '../utils/gps_logika.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/app_bar_play.dart';
-import '../widgets/mapa_markers.dart'; // Ujisti se, že tady máš MarkerBuilder
+import '../widgets/mapa_markers.dart';
 import '../widgets/panel_presun.dart';
 import '../widgets/panel_dorazil.dart';
 import '../widgets/gps_error_panel.dart';
@@ -15,7 +15,7 @@ import '../widgets/center_user_button.dart';
 import '../widgets/radar_layer.dart';
 import '../data/mise_data.dart';
 import '../widgets/map_zoom_buttons.dart';
-import '../widgets/audio_player.dart'; // <--- PŘIDANÝ IMPORT PŘEHRÁVAČE
+import '../widgets/audio_player.dart';
 
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
@@ -244,7 +244,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                   polylines: [
                     Polyline(
                       points: pevnaTrasa,
-                      color: Colors.black.withOpacity(0.5),
+                      color: const Color(0x80000000),
                       strokeWidth: 5.0
                     ),
                   ],
@@ -256,7 +256,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                   polylines: [
                     Polyline(
                       points: trasaPoChodniku,
-                      color: const Color(0xFFFAED41).withOpacity(0.9),
+                      color: const Color(0xE6FAED41),
                       strokeWidth: 5.0
                     ),
                   ],
@@ -292,10 +292,9 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
           if (_locationError != null) GpsErrorPanel(errorText: _locationError!, onRetry: _startLocationTracking),
 
-          // TLAČÍTKO PRO ZNOVUOTEVŘENÍ PŘEHRÁVAČE (Ukáže se, jen když je skrytý)
           if (aktivniBonus != null && stavHry == 1 && skrytyPrehravac)
             Positioned(
-              bottom: 160, // Kousek nad panelem "Přesun"
+              bottom: 160,
               right: 20,
               child: FloatingActionButton(
                 heroTag: 'reopenAudioBtn',
@@ -303,12 +302,11 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                 mini: true,
                 child: const Icon(Icons.music_note, color: Colors.black),
                 onPressed: () {
-                  setState(() => skrytyPrehravac = false); // Otevře přehrávač zpět!
+                  setState(() => skrytyPrehravac = false);
                 },
               ),
             ),
 
-          // SAMOTNÝ PŘEHRÁVAČ HUDBY (Ukáže se, když není skrytý)
           if (aktivniBonus != null && stavHry == 1 && !skrytyPrehravac)
             Positioned(
               bottom: 150,
@@ -318,7 +316,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                 nazevSkladby: aktivniBonus!.bonusNazev!,
                 audioPath: aktivniBonus!.bonusAudioPath ?? 'assets/audio/default.mp3',
                 onZavrit: () {
-                  setState(() => skrytyPrehravac = true); // Změna: Už nenulujeme bonus, jen ho skryjeme
+                  setState(() => skrytyPrehravac = true);
                 },
               ),
             ),

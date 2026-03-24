@@ -36,11 +36,9 @@ class LogikaCesty {
 
         return coords.map((c) => LatLng(c[1], c[0])).toList();
       } else {
-        print('Chyba ORS API: ${response.statusCode} - ${response.body}');
         return [];
       }
     } catch (e) {
-      print('Chyba při volání trasy: $e');
       return [];
     }
   }
