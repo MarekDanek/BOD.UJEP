@@ -62,7 +62,6 @@ class AppBarPlay extends StatelessWidget implements PreferredSizeWidget {
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
-                  decoration: TextDecoration.underline,
                 ),
               ),
               Text(

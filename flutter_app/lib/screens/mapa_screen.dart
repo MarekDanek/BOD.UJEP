@@ -196,7 +196,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
     }
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: stavHry == 0
@@ -216,11 +216,13 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                 });
               },
             ),
+
       floatingActionButton: CenterUserButton(
         isFollowing: _followUser,
         stavHry: stavHry,
         onPressed: _centerOnUser,
       ),
+
       body: Stack(
         children: [
           FlutterMap(
@@ -228,6 +230,8 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             options: MapOptions(
               initialCenter: _userLatLng ?? const LatLng(50.6653, 14.0255),
               initialZoom: 16.5,
+              minZoom: 6.5,
+              maxZoom: 19.0,
               onPositionChanged: (position, hasGesture) {
                 if (hasGesture && _followUser) setState(() => _followUser = false);
               },
@@ -238,19 +242,17 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                 userAgentPackageName: 'cz.ujep.bod',
               ),
 
-              // 1. ČERNÁ ČÁRA (Historie)
               if (pevnaTrasa.isNotEmpty)
                 PolylineLayer(
                   polylines: [
                     Polyline(
                       points: pevnaTrasa,
-                      color: const Color(0x80000000),
+                      color: const Color(0xFF000000),
                       strokeWidth: 5.0
                     ),
                   ],
                 ),
 
-              // 2. ŽLUTÁ ČÁRA (Budoucnost)
               if (stavHry > 0 && trasaPoChodniku.isNotEmpty)
                 PolylineLayer(
                   polylines: [
@@ -263,14 +265,10 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                 ),
 
               if (_userLatLng != null) RadarLayer(position: _userLatLng!, animation: _radarAnimation),
-
-              // 3. VYKRESLENÍ ZNAČEK
               MarkerLayer(
                 markers: [
                   if (_userLatLng != null) MarkerBuilder.buildUserMarker(_userLatLng!),
-
                   if (stavHry == 0) MarkerBuilder.buildStartMarker(trasaMise.first, onMarkerTap),
-
                   if (stavHry > 0)
                     for (int i = 0; i < aktualniBod; i++)
                       if (i == aktualniBod - 1)
@@ -284,22 +282,24 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             ],
           ),
 
+       if (_locationError != null) GpsErrorPanel(errorText: _locationError!, onRetry: _startLocationTracking),
+
           Positioned(
             top: 20,
             right: 20,
             child: MapZoomButtons(mapController: _mapController),
           ),
 
-          if (_locationError != null) GpsErrorPanel(errorText: _locationError!, onRetry: _startLocationTracking),
 
           if (aktivniBonus != null && stavHry == 1 && skrytyPrehravac)
             Positioned(
-              bottom: 160,
-              right: 20,
+              top: 20,
+              left: 20,
               child: FloatingActionButton(
                 heroTag: 'reopenAudioBtn',
                 backgroundColor: const Color(0xFFFAED41),
                 mini: true,
+                elevation: 4,
                 child: const Icon(Icons.music_note, color: Colors.black),
                 onPressed: () {
                   setState(() => skrytyPrehravac = false);
@@ -309,9 +309,9 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
           if (aktivniBonus != null && stavHry == 1 && !skrytyPrehravac)
             Positioned(
-              bottom: 150,
+              top: 12,
               left: 0,
-              right: 0,
+              right: 65,
               child: MiniAudioPlayer(
                 nazevSkladby: aktivniBonus!.bonusNazev!,
                 audioPath: aktivniBonus!.bonusAudioPath ?? 'assets/audio/default.mp3',

@@ -23,7 +23,7 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
 
-  // NOVÁ PROMĚNNÁ: pamatuje si pozici, když prstem táhneš posuvník
+  // Pamatuje si pozici, když prstem táhneš posuvník (nyní v milisekundách!)
   double? _dragPosition;
 
   @override
@@ -35,6 +35,12 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
   Future<void> _setupAudio() async {
     await _audioPlayer.setSource(AssetSource(widget.audioPath.replaceAll('assets/', '')));
 
+    // Řekneme si o celkovou délku natvrdo, ať se odemkne Slider
+    final d = await _audioPlayer.getDuration();
+    if (d != null && mounted) {
+      setState(() => _duration = d);
+    }
+
     _audioPlayer.onDurationChanged.listen((d) {
       if (mounted) setState(() => _duration = d);
     });
@@ -44,11 +50,13 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
     });
 
     _audioPlayer.onPlayerComplete.listen((event) {
-      if (mounted){ setState(() {
-        _isPlaying = false;
-        _position = Duration.zero;
-      });
-     }
+      if (mounted) {
+        setState(() {
+          _isPlaying = false;
+          _position = Duration.zero;
+          _dragPosition = null; // Vyčistíme paměť po dohrání
+        });
+      }
     });
   }
 
@@ -76,8 +84,10 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    // Čas, který se zrovna ukazuje (buď skutečný, nebo ten, kam zrovna táhneš prstem)
-    final zobrazenyCas = _dragPosition != null ? Duration(seconds: _dragPosition!.toInt()) : _position;
+    // Čas, který se zrovna ukazuje (změněno na milisekundy pro maximální plynulost)
+    final zobrazenyCas = _dragPosition != null
+        ? Duration(milliseconds: _dragPosition!.toInt())
+        : _position;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -97,7 +107,8 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              // Musíme Column roztáhnout, aby Slider vyplnil místo správně
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
                 SliderTheme(
@@ -111,16 +122,14 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
                   ),
                   child: Slider(
                     min: 0,
-                    max: _duration.inSeconds.toDouble() > 0 ? _duration.inSeconds.toDouble() : 1,
-                    // TADY JE OPRAVA PŘETÁČENÍ:
-                    value: (_dragPosition ?? _position.inSeconds.toDouble()).clamp(0, _duration.inSeconds.toDouble() > 0 ? _duration.inSeconds.toDouble() : 1),
+                    // Vše převedeno na milisekundy = krásně plynulé tažení
+                    max: _duration.inMilliseconds > 0 ? _duration.inMilliseconds.toDouble() : 1,
+                    value: (_dragPosition ?? _position.inMilliseconds.toDouble()).clamp(0, _duration.inMilliseconds > 0 ? _duration.inMilliseconds.toDouble() : 1),
                     onChanged: (value) {
-                      // Hýbeme jen vizuálním posuvníkem
                       setState(() => _dragPosition = value);
                     },
                     onChangeEnd: (value) async {
-                      // Až když pustíš prst, hudba se reálně přetočí
-                      await _audioPlayer.seek(Duration(seconds: value.toInt()));
+                      await _audioPlayer.seek(Duration(milliseconds: value.toInt()));
                       setState(() => _dragPosition = null);
                     },
                   ),
