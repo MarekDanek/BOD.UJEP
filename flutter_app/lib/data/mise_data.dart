@@ -163,6 +163,6 @@ final testBod = BodMise(
   textCast1: 'Test',
   obrazekCesta: 'Test',
   textCast2: 'Gratulujeme,\ndokončil jsi misi!',
-  lat: 50.690399749967014,
-  lon: 14.093647903993505,
+  lat: 50.69034641800818,
+  lon: 14.094063052036377,
 );

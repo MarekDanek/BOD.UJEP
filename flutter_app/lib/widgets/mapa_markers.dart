@@ -128,6 +128,23 @@ class MarkerBuilder {
       ),
     );
   }
+  // Testovací build marker : umožní změnu barvy
+ static Marker buildTestDotMarker(BodMise bod, {required bool jeBlizko}) {
+  final Color barva = jeBlizko ? const Color(0xFF34C759) : const Color(0xFFFAED41);
+
+  return Marker(
+    point: LatLng(bod.lat, bod.lon),
+    width: 16,
+    height: 16,
+    child: Container(
+      decoration: BoxDecoration(
+        color: barva,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.black, width: 2),
+      ),
+    ),
+  );
+}
 }
 
 

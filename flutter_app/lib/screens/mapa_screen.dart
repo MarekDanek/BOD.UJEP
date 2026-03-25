@@ -17,6 +17,7 @@ import '../data/mise_data.dart';
 import '../widgets/map_zoom_buttons.dart';
 import '../widgets/audio_player.dart';
 import '../widgets/bonus_pop_up.dart';
+import '../utils/vzdalenost_bodu.dart';
 
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
@@ -204,6 +205,15 @@ void onPribehPokracovat() {
 
  @override
   Widget build(BuildContext context) {
+    // Výpočet jestli je uživatel u bodu
+    final bool testBodJeBlizko = _userLatLng != null &&
+    VzdalenostBodu.jeUBodu(
+      userLat: _userLatLng!.latitude,
+      userLon: _userLatLng!.longitude,
+      cilovyBod: testBod, // Může se změnit na Aktuální bod
+      perimetrMetry: 28,
+    );
+
     return Scaffold(
       appBar: stavHry == 0
           ? MyAppBar(levaIkona: Icons.menu, naLevaIkonaKlik: () => Navigator.pop(context))
@@ -284,7 +294,7 @@ void onPribehPokracovat() {
                       else
                         MarkerBuilder.buildSmallDotMarker(trasaMise[i]),
                   //Testovací Bod
-                  MarkerBuilder.buildSmallDotMarker(testBod),
+                  MarkerBuilder.buildTestDotMarker(testBod, jeBlizko: testBodJeBlizko),
                 ],
               ),
             ],
