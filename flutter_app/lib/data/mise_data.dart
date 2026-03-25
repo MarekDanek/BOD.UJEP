@@ -26,6 +26,18 @@ class Mise {
   });
 }
 
+class BonusovaStranka {
+  final String? obrazek;
+  final String? podnadpis;
+  final String text;
+
+  BonusovaStranka({
+    this.obrazek,
+    this.podnadpis,
+    required this.text,
+  });
+}
+
 class BodMise {
   final int id;
   final String nazevBodu;
@@ -36,9 +48,9 @@ class BodMise {
   final double lat;
   final double lon;
 
-  final String? bonusNazev;
-  final String? bonusObrazek;
+
   final String? bonusAudioPath;
+  final List<BonusovaStranka>? bonusoveStranky;
 
   BodMise({
     required this.id,
@@ -49,9 +61,8 @@ class BodMise {
     required this.textCast2,
     required this.lat,
     required this.lon,
-    this.bonusNazev,
-    this.bonusObrazek,
     this.bonusAudioPath,
+    this.bonusoveStranky,
   });
 }
 
@@ -90,9 +101,13 @@ final List<BodMise> trasaMise = [
     lat: 50.6650428,
     lon: 14.0257067,
 
-    bonusNazev: 'Tokio Drift — bejby navždy',
-    bonusObrazek: 'assets/BOD2_2.png',
     bonusAudioPath: 'assets/audio/music.mp3',
+    bonusoveStranky: [
+      BonusovaStranka(
+        obrazek: 'assets/BOD2_2.png',
+        text: 'Tokio Drift — bejby navždy',
+      )
+    ],
   ),
   BodMise(
     id: 3,
@@ -103,6 +118,20 @@ final List<BodMise> trasaMise = [
     textCast2: 'Podíval jsem se nahoru na Purkyněho portrét. Napadlo mě, že to celé trochu připomíná výplatní pásku z univerzity.\n\nKrátká. A rychle pryč.',
     lat: 50.6657314,
     lon: 14.0255567,
+
+
+    bonusAudioPath: 'assets/audio/music.mp3',
+    bonusoveStranky: [
+      BonusovaStranka(
+        obrazek: 'assets/BOD3_vtip_1.png',
+        podnadpis: 'Petrovi se vybaví vtip.',
+        text: 'Co dělá chorvatský zvěrolékař v důchodu?',
+      ),
+      BonusovaStranka(
+        obrazek: 'assets/BOD3_vtip_2.png',
+        text: 'Utrácí kuny.',
+      ),
+    ],
   ),
   BodMise(
     id: 4,
@@ -114,7 +143,7 @@ final List<BodMise> trasaMise = [
     lat: 50.6656114,
     lon: 14.0249397,
   ),
-BodMise(
+  BodMise(
     id: 5,
     nazevBodu: 'FUD — Kouř',
     podnadpis: 'Poslední cigareta?',
@@ -127,7 +156,7 @@ BodMise(
 ];
 
 // Testovací bod
-final TestBod = BodMise(
+final testBod = BodMise(
   id: 6,
   nazevBodu: 'Testovací-BoD',
   podnadpis: 'TEST',

@@ -16,6 +16,7 @@ import '../widgets/radar_layer.dart';
 import '../data/mise_data.dart';
 import '../widgets/map_zoom_buttons.dart';
 import '../widgets/audio_player.dart';
+import '../widgets/bonus_pop_up.dart';
 
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
@@ -168,20 +169,25 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
     }
   }
 
-  void onPribehPokracovat() {
+void onPribehPokracovat() {
     final soucasnyBod = trasaMise[aktualniBod - 1];
 
-    if (soucasnyBod.bonusNazev != null) {
-      DialogManager.ukazBonusPopup(
-        context: context,
-        bodData: soucasnyBod,
-        onPokracovat: () {
-          setState(() {
-            aktivniBonus = soucasnyBod;
-            skrytyPrehravac = false;
-          });
-          _posunNaDalsiBod();
-        },
+    if (soucasnyBod.bonusoveStranky != null && soucasnyBod.bonusoveStranky!.isNotEmpty) {
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (context) => BonusPopupMultipage(
+            bodData: soucasnyBod,
+            onVyrazitPokracovat: () {
+              setState(() {
+                aktivniBonus = soucasnyBod;
+                skrytyPrehravac = false;
+              });
+              _posunNaDalsiBod();
+            },
+          ),
+        ),
       );
     } else {
       _posunNaDalsiBod();
@@ -278,7 +284,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                       else
                         MarkerBuilder.buildSmallDotMarker(trasaMise[i]),
                   //Testovací Bod
-                  MarkerBuilder.buildSmallDotMarker(TestBod),
+                  MarkerBuilder.buildSmallDotMarker(testBod),
                 ],
               ),
             ],
@@ -309,14 +315,14 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
               ),
             ),
 
-          if (aktivniBonus != null && stavHry == 1 && !skrytyPrehravac)
+      if (aktivniBonus != null && stavHry == 1 && !skrytyPrehravac)
             Positioned(
               top: 12,
               left: 0,
               right: 65,
               child: MiniAudioPlayer(
-                nazevSkladby: aktivniBonus!.bonusNazev!,
-                audioPath: aktivniBonus!.bonusAudioPath ?? 'assets/audio/default.mp3',
+                nazevSkladby: aktivniBonus!.bonusoveStranky!.first.text,
+                audioPath: aktivniBonus!.bonusAudioPath ?? 'assets/audio/music.mp3',
                 onZavrit: () {
                   setState(() => skrytyPrehravac = true);
                 },
@@ -324,7 +330,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             ),
 
           if (stavHry == 1) PanelPresun(bodData: trasaMise[aktualniBod - 1], aktualniBod: aktualniBod),
-          if (stavHry == 2) PanelDorazil(bodData: trasaMise[aktualniBod - 1], aktualniBod: aktualniBod, onOtevrit: () => DialogManager.ukazPribehPopup(context: context, bodData: trasaMise[aktualniBod - 1], miseData: dataMise, onPokracovat: onPribehPokracovat)),
+          if (stavHry == 2) PanelDorazil(bodData: trasaMise[aktualniBod - 1], aktualniBod: aktualniBod, onOtevrit: () => DialogManager.ukazPribehPopup(context: context, historieBodu: trasaMise.sublist(0, aktualniBod), miseData: dataMise, onPokracovat: onPribehPokracovat)),
         ],
       ),
     );
