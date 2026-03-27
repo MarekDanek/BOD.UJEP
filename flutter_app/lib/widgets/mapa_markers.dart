@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../data/mise_data.dart';
+import 'dokoncena_mise_bublina.dart'; // <--- IMPORT NAŠÍ BUBLINY
 
 class MarkerBuilder {
+  // --- START MARKER ---
   static Marker buildStartMarker(BodMise point, VoidCallback onTap) {
     return Marker(
       point: LatLng(point.lat, point.lon),
@@ -29,22 +31,43 @@ class MarkerBuilder {
     );
   }
 
-  static Marker buildSmallDotMarker(BodMise bod) {
+  static Marker buildDokoncenaBublinaMarker(BodMise point, VoidCallback onTap) {
     return Marker(
-      point: LatLng(bod.lat, bod.lon),
-      width: 16, // Malá velikost
-      height: 16,
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFFFAED41),
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.black, width: 2), // Černý okraj
+      point: LatLng(point.lat, point.lon),
+      width: 240,
+      height: 150,
+      alignment: Alignment.center, // Kotvíme na střed
+      child: Transform.translate(
+        offset: const Offset(0, -100), // <--- ZÁPORNÁ HODNOTA = POSUN NAHORU NAD BOD
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: DokoncenaMiseBublina(
+            miseData: dataMise,
+            pocetBodu: trasaMise.length,
+            onTap: onTap,
+          ),
         ),
       ),
     );
   }
 
+  // --- MALÝ BOD (NEZJISTĚNÝ/HISTORIE) ---
+  static Marker buildSmallDotMarker(BodMise bod) {
+    return Marker(
+      point: LatLng(bod.lat, bod.lon),
+      width: 16,
+      height: 16,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFFAED41),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.black, width: 2),
+        ),
+      ),
+    );
+  }
 
+  // --- NORMÁLNÍ BĚŽNÝ BOD ---
   static Marker buildNormalMarker(BodMise point, VoidCallback onTap) {
     return Marker(
       point: LatLng(point.lat, point.lon),
@@ -92,7 +115,8 @@ class MarkerBuilder {
     );
   }
 
-   static Marker buildUserMarker(LatLng point) {
+  // --- UŽIVATELSKÝ MARKER (LOKACE) ---
+  static Marker buildUserMarker(LatLng point) {
     return Marker(
       point: point,
       width: 24,
@@ -108,6 +132,7 @@ class MarkerBuilder {
     );
   }
 
+  // --- VELKÝ AKTIVNÍ BOD (KTERÝ ZROVNA HRÁČ HLEDÁ) ---
   static Marker buildBigMarker(BodMise point) {
     return Marker(
       point: LatLng(point.lat, point.lon),
@@ -128,23 +153,22 @@ class MarkerBuilder {
       ),
     );
   }
-  // Testovací build marker : umožní změnu barvy
- static Marker buildTestDotMarker(BodMise bod, {required bool jeBlizko}) {
-  final Color barva = jeBlizko ? const Color(0xFF34C759) : const Color(0xFFFAED41);
 
-  return Marker(
-    point: LatLng(bod.lat, bod.lon),
-    width: 16,
-    height: 16,
-    child: Container(
-      decoration: BoxDecoration(
-        color: barva,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.black, width: 2),
+  // --- TESTOVACÍ BOD ---
+  static Marker buildTestDotMarker(BodMise bod, {required bool jeBlizko}) {
+    final Color barva = jeBlizko ? const Color(0xFF34C759) : const Color(0xFFFAED41);
+
+    return Marker(
+      point: LatLng(bod.lat, bod.lon),
+      width: 16,
+      height: 16,
+      child: Container(
+        decoration: BoxDecoration(
+          color: barva,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.black, width: 2),
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
-}
-
-

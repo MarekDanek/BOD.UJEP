@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-import 'mapa_controller.dart'; // <--- IMPORT NAŠEHO NOVÉHO SOUBORU
+import 'mapa_controller.dart';
 import '../start_screen.dart';
 import '../../utils/dialog_manager.dart';
 import '../../utils/vzdalenost_bodu.dart';
@@ -26,12 +26,11 @@ class MapaScreen extends StatefulWidget {
 }
 
 class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateMixin {
-  late MapaController c; // Tímto přistupujeme ke všem funkcím a datům
+  late MapaController c;
 
   @override
   void initState() {
     super.initState();
-    // Vytvoříme Controller a pošleme mu potřebné nástroje (jako setState)
     c = MapaController(
       notifyListeners: () => setState(() {}),
       vsync: this,
@@ -46,21 +45,62 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
+  PreferredSizeWidget _buildAppBar() {
+    if (c.stavHry == 0) {
+      return MyAppBar(
+        levaIkona: Icons.menu,
+        naLevaIkonaKlik: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StartScreen())),
+      );
+    } else if (c.stavHry == 3) {
+      return AppBarPlay(
+        nazevMise: 'Archiv: ${dataMise.nazev}',
+        postup: '${trasaMise.length}/${trasaMise.length}',
+        onMenuClick: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StartScreen())),
+        onCloseClick: () => c.prepniNaStav(0),
+      );
+    } else {
+      return AppBarPlay(
+        nazevMise: dataMise.nazev,
+        postup: '${c.aktualniBod - 1}/${trasaMise.length}',
+        onMenuClick: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StartScreen())),
+        onCloseClick: () => c.prepniNaStav(0),
+      );
+    }
+  }
+
+  List<Marker> _buildMarkers(bool testBodJeBlizko) {
+    return [
+      if (c.userLatLng != null) MarkerBuilder.buildUserMarker(c.userLatLng!),
+
+      if (c.stavHry == 0) MarkerBuilder.buildStartMarker(trasaMise.first, c.onMarkerTap),
+
+      // NOVINKA: Zobrazení "bubliny" POD startovním bodem, pokud je mise dokončena
+      if (c.stavHry == 0 && c.miseDokoncena)
+        MarkerBuilder.buildDokoncenaBublinaMarker(trasaMise.first, c.onMarkerTap),
+
+      if (c.stavHry > 0)
+        for (int i = 0; i < trasaMise.length; i++)
+          if (c.stavHry == 3)
+            MarkerBuilder.buildNormalMarker(trasaMise[i], () => DialogManager.ukazPribehPopup(
+                context: context, historieBodu: trasaMise.sublist(0, i + 1), miseData: dataMise, onPokracovat: () {}))
+          else if (i < c.aktualniBod)
+            if (i == c.aktualniBod - 1)
+              c.stavHry == 1 ? MarkerBuilder.buildNormalMarker(trasaMise[i], c.onMarkerTap) : MarkerBuilder.buildBigMarker(trasaMise[i])
+            else
+              MarkerBuilder.buildSmallDotMarker(trasaMise[i]),
+
+      MarkerBuilder.buildTestDotMarker(testBod, jeBlizko: testBodJeBlizko),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool testBodJeBlizko = c.userLatLng != null && VzdalenostBodu.jeUBodu(
         userLat: c.userLatLng!.latitude, userLon: c.userLatLng!.longitude, cilovyBod: testBod, perimetrMetry: 28);
 
     return Scaffold(
-      appBar: (c.stavHry == 0 || c.stavHry == 3)
-          ? MyAppBar(levaIkona: Icons.menu, naLevaIkonaKlik: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StartScreen())))
-          : AppBarPlay(
-              nazevMise: dataMise.nazev, postup: '${c.aktualniBod - 1}/${trasaMise.length}',
-              onMenuClick: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StartScreen())),
-              onCloseClick: () => c.prepniNaStav(0),
-            ),
+      appBar: _buildAppBar(),
       floatingActionButton: CenterUserButton(isFollowing: c.followUser, stavHry: c.stavHry, onPressed: c.centerOnUser),
-
       body: Stack(
         children: [
           FlutterMap(
@@ -78,19 +118,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
               if (c.userLatLng != null) RadarLayer(position: c.userLatLng!, animation: c.radarAnimation),
 
-              MarkerLayer(
-                markers: [
-                  if (c.userLatLng != null) MarkerBuilder.buildUserMarker(c.userLatLng!),
-                  if (c.stavHry == 0) MarkerBuilder.buildStartMarker(trasaMise.first, c.onMarkerTap),
-                  if (c.stavHry > 0)
-                    for (int i = 0; i < trasaMise.length; i++)
-                      if (c.stavHry == 3) MarkerBuilder.buildNormalMarker(trasaMise[i], () => DialogManager.ukazPribehPopup(context: context, historieBodu: trasaMise.sublist(0, i + 1), miseData: dataMise, onPokracovat: () {}))
-                      else if (i < c.aktualniBod)
-                        if (i == c.aktualniBod - 1) c.stavHry == 1 ? MarkerBuilder.buildNormalMarker(trasaMise[i], c.onMarkerTap) : MarkerBuilder.buildBigMarker(trasaMise[i])
-                        else MarkerBuilder.buildSmallDotMarker(trasaMise[i]),
-                  MarkerBuilder.buildTestDotMarker(testBod, jeBlizko: testBodJeBlizko),
-                ],
-              ),
+              MarkerLayer(markers: _buildMarkers(testBodJeBlizko)),
             ],
           ),
 
