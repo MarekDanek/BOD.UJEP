@@ -36,7 +36,7 @@ class MarkerBuilder {
       point: LatLng(point.lat, point.lon),
       width: 240,
       height: 150,
-      alignment: Alignment.center, // Kotvíme na střed
+      alignment: Alignment.center,
       child: Transform.translate(
         offset: const Offset(0, -100), // <--- ZÁPORNÁ HODNOTA = POSUN NAHORU NAD BOD
         child: Align(

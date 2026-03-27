@@ -17,6 +17,7 @@ import '../../widgets/radar_layer.dart';
 import '../../data/mise_data.dart';
 import '../../widgets/map_zoom_buttons.dart';
 import '../../widgets/audio_player.dart';
+import '../../widgets/archiv_mise_popup.dart';
 
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
@@ -74,7 +75,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
       if (c.stavHry == 0) MarkerBuilder.buildStartMarker(trasaMise.first, c.onMarkerTap),
 
-      // NOVINKA: Zobrazení "bubliny" POD startovním bodem, pokud je mise dokončena
+      // Zobrazení "bubliny" POD startovním bodem, pokud je mise dokončena
       if (c.stavHry == 0 && c.miseDokoncena)
         MarkerBuilder.buildDokoncenaBublinaMarker(trasaMise.first, c.onMarkerTap),
 
@@ -149,6 +150,22 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
           if (c.stavHry == 1) PanelPresun(bodData: trasaMise[c.aktualniBod - 1], aktualniBod: c.aktualniBod),
           if (c.stavHry == 2) PanelDorazil(bodData: trasaMise[c.aktualniBod - 1], aktualniBod: c.aktualniBod, onOtevrit: () => DialogManager.ukazPribehPopup(context: context, historieBodu: trasaMise.sublist(0, c.aktualniBod), miseData: dataMise, onPokracovat: c.onPribehPokracovat)),
+
+          // --- NOVINKA: INTERAKTIVNÍ VYSOUVACÍ PANEL V ARCHIVU ---
+          if (c.stavHry == 3)
+            DraggableScrollableSheet(
+              initialChildSize: 0.35,
+              minChildSize: 0.12,
+              maxChildSize: 0.45,
+              snap: true,
+              builder: (BuildContext context, ScrollController scrollController) {
+                return ArchivMisePopup(
+                  miseData: dataMise,
+                  pocetBodu: trasaMise.length,
+                  scrollController: scrollController,
+                );
+              },
+            ),
         ],
       ),
     );

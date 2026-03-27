@@ -220,7 +220,7 @@ class MapaController {
     }
   }
 
-  void onMarkerTap() {
+void onMarkerTap() {
     if (miseDokoncena) {
       zmenStav(() { stavHry = 3; aktualniBod = trasaMise.length; });
       vypocitejHistorickouTrasu();
@@ -230,7 +230,7 @@ class MapaController {
         }
       else if (stavHry == 1) {
         prepniNaStav(2);
-      }
+        }
     }
   }
 }
