@@ -1,3 +1,4 @@
+import 'package:bod_ujep_app/screens/start_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -16,8 +17,10 @@ import '../widgets/radar_layer.dart';
 import '../data/mise_data.dart';
 import '../widgets/map_zoom_buttons.dart';
 import '../widgets/audio_player.dart';
-import '../widgets/bonus_pop_up.dart';
+import '../widgets/bonus_popup.dart';
 import '../utils/vzdalenost_bodu.dart';
+import '../widgets/konec_mise_popup.dart';
+import '../widgets/slide_bonus.dart';
 
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
@@ -159,22 +162,50 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
       vypocitejTrasu();
       vypocitejHistorickouTrasu();
     } else {
-      setState(() {
-        stavHry = 0;
-        aktualniBod = 1;
-        trasaPoChodniku.clear();
-        pevnaTrasa.clear();
-        aktivniBonus = null;
-        skrytyPrehravac = false;
-      });
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => KonecMisePopup(
+          historieBodu: trasaMise, // PŘIDÁNO PRO SLIDE ZPĚT
+          miseData: dataMise,      // PŘIDÁNO PRO DYNAMICKOU STATISTIKU
+          onUzavrit: () {
+            Navigator.pop(context);
+            setState(() {
+              stavHry = 0;
+              aktualniBod = 1;
+              trasaPoChodniku.clear();
+              pevnaTrasa.clear();
+              aktivniBonus = null;
+              skrytyPrehravac = false;
+            });
+          },
+          onBonusy: () {
+            List<ZiskanyBonus> vsetkyBonusy = [];
+            for (var bod in trasaMise) {
+              if (bod.bonusoveStranky != null) {
+                for (var stranka in bod.bonusoveStranky!) {
+                  vsetkyBonusy.add(ZiskanyBonus(stranka, bod.bonusAudioPath));
+                }
+              }
+            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (context) => PrehledBonusuPopup(vsetkyBonusy: vsetkyBonusy),
+              ),
+            );
+          },
+        ),
+      );
     }
   }
 
-void onPribehPokracovat() {
+  void onPribehPokracovat() {
     final soucasnyBod = trasaMise[aktualniBod - 1];
 
     if (soucasnyBod.bonusoveStranky != null && soucasnyBod.bonusoveStranky!.isNotEmpty) {
-
       Navigator.of(context).push(
         MaterialPageRoute(
           fullscreenDialog: true,
@@ -182,8 +213,11 @@ void onPribehPokracovat() {
             bodData: soucasnyBod,
             onVyrazitPokracovat: () {
               setState(() {
-                aktivniBonus = soucasnyBod;
-                skrytyPrehravac = false;
+                // OPRAVA: Hudební přehrávač se změní jen u bodu, co má reálně hudbu
+                if (soucasnyBod.bonusAudioPath != null) {
+                  aktivniBonus = soucasnyBod;
+                  skrytyPrehravac = false;
+                }
               });
               _posunNaDalsiBod();
             },
@@ -203,24 +237,38 @@ void onPribehPokracovat() {
     }
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
-    // Výpočet jestli je uživatel u bodu
     final bool testBodJeBlizko = _userLatLng != null &&
     VzdalenostBodu.jeUBodu(
       userLat: _userLatLng!.latitude,
       userLon: _userLatLng!.longitude,
-      cilovyBod: testBod, // Může se změnit na Aktuální bod
+      cilovyBod: testBod,
       perimetrMetry: 28,
     );
 
     return Scaffold(
       appBar: stavHry == 0
-          ? MyAppBar(levaIkona: Icons.menu, naLevaIkonaKlik: () => Navigator.pop(context))
+          ? MyAppBar(
+              levaIkona: Icons.menu,
+              naLevaIkonaKlik: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const StartScreen()),
+                );
+              }
+            )
           : AppBarPlay(
               nazevMise: dataMise.nazev,
               postup: '${aktualniBod - 1}/${trasaMise.length}',
-              onMenuClick: () {},
+              onMenuClick: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const StartScreen(),
+                  ),
+                );
+              },
               onCloseClick: () {
                 setState(() {
                   stavHry = 0;

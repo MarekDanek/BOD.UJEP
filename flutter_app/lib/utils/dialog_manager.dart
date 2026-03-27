@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/mise_popup.dart';
-import '../widgets/point_pop_up.dart';
+import '../widgets/point_popup.dart';
 import '../data/mise_data.dart';
 
 class DialogManager {

@@ -32,7 +32,6 @@ class AppBarPlay extends StatelessWidget implements PreferredSizeWidget {
                 onTap: onMenuClick,
                 child: const Icon(Icons.menu, color: Colors.black, size: 28),
               ),
-              // ZDE JE ZMĚNA:
              Expanded(
                 child: Transform.translate(
                   offset: const Offset(15, 0),

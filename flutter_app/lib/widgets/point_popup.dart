@@ -38,7 +38,7 @@ class _PointPopupState extends State<PointPopup> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.85, // 85% obrazovky
+      height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
         color: Color(0xFFFAED41),
         borderRadius: BorderRadius.only(
@@ -46,13 +46,12 @@ class _PointPopupState extends State<PointPopup> {
           topRight: Radius.circular(30),
         ),
       ),
-      // SafeArea zajistí, že tlačítko nevleze pod domovskou čáru na iPhonu/Tabletu
       child: SafeArea(
         bottom: true,
         child: Column(
           children: [
             const SizedBox(height: 12),
-            // Úchopová čárka
+
             Center(
               child: Container(
                 width: 40,
@@ -65,7 +64,6 @@ class _PointPopupState extends State<PointPopup> {
             ),
             const SizedBox(height: 16),
 
-            // Indikátory stránek (čárky)
             if (widget.historieBodu.length > 1)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -104,10 +102,10 @@ class _PointPopupState extends State<PointPopup> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded( // Expanded zamezí přetečení dlouhého názvu mise
+                              Expanded(
                                 child: Text(
                                   widget.miseData.nazev,
-                                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Colors.black, letterSpacing: -0.5),
+                                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: -0.5),
                                 ),
                               ),
                               const SizedBox(width: 10),
@@ -121,7 +119,7 @@ class _PointPopupState extends State<PointPopup> {
                                 child: Center(
                                   child: Text(
                                     bodData.id.toString(),
-                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black),
+                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                                   ),
                                 ),
                               ),
@@ -149,7 +147,7 @@ class _PointPopupState extends State<PointPopup> {
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),
                           child: Text(
                             bodData.textCast1,
-                            style: const TextStyle(fontSize: 15, height: 1.2, color: Colors.black),
+                            style: const TextStyle(fontSize: 15, height: 1.2, color: Colors.black, fontWeight: FontWeight.bold),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -170,10 +168,10 @@ class _PointPopupState extends State<PointPopup> {
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),
                           child: Text(
                             bodData.textCast2,
-                            style: const TextStyle(fontSize: 15, height: 1.2, color: Colors.black),
+                            style: const TextStyle(fontSize: 15, height: 1.2, color: Colors.black, fontWeight: FontWeight.bold),
                           ),
                         ),
-                        const SizedBox(height: 40), 
+                        const SizedBox(height: 40),
                       ],
                     ),
                   );

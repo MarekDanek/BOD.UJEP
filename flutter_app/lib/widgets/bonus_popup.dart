@@ -54,27 +54,35 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
 
               return SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                  padding: const EdgeInsets.fromLTRB(24.0, 10.0, 24.0, 20.0),
                   child: Column(
                     children: [
-                      const SizedBox(height: 10),
-                      if (pageData.podnadpis != null)
-                        Text(
-                          pageData.podnadpis!,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15.0),
+                        child: Text(
+                          pageData.podnadpis ?? '',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16, color: Colors.black87),
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
                         ),
+                      ),
                       const Expanded(flex: 1, child: SizedBox()),
                       if (pageData.obrazek != null)
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.asset(
-                            pageData.obrazek!,
-                            width: double.infinity,
-                            fit: BoxFit.contain,
-                            height: MediaQuery.of(context).size.height * 0.45,
-                          ),
-                        ),
+                        pageData.zaoblitObrazek == true
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.asset(
+                                  pageData.obrazek!,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  height: MediaQuery.of(context).size.height * 0.45,
+                                ),
+                              )
+                            : Image.asset(
+                                pageData.obrazek!,
+                                width: double.infinity,
+                                fit: BoxFit.contain,
+                                height: MediaQuery.of(context).size.height * 0.45,
+                              ),
                       const SizedBox(height: 30),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -84,6 +92,17 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
                           style: const TextStyle(fontSize: 22, height: 1.3, fontWeight: FontWeight.bold),
                         ),
                       ),
+                      if (pageData.malyText != null) ...[
+                        const SizedBox(height: 12),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                          child: Text(
+                            pageData.malyText!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 16, height: 1.2, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                       const Expanded(flex: 2, child: SizedBox()),
                     ],
                   ),
@@ -92,21 +111,14 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
             },
           ),
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const SizedBox(width: 32),
-                  const Text(
-                    'Bonus',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  GestureDetector(
-                    onTap: () => Navigator.of(context).pop(),
-                    child: const Icon(Icons.close, size: 32, color: Colors.black54),
-                  ),
-                ],
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: const Icon(Icons.close, size: 32, color: Colors.black54),
+                ),
               ),
             ),
           ),
@@ -135,26 +147,27 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
                 ),
               ),
             ),
-          Positioned(
-            bottom: 30,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(pages.length, (index) {
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  height: 4,
-                  width: _currentPage == index ? 24 : 12,
-                  decoration: BoxDecoration(
-                    color: _currentPage == index ? Colors.black : Colors.black26,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                );
-              }),
+          if (pages.length > 1)
+            Positioned(
+              bottom: 30,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(pages.length, (index) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    height: 4,
+                    width: _currentPage == index ? 24 : 12,
+                    decoration: BoxDecoration(
+                      color: _currentPage == index ? Colors.black : Colors.black26,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  );
+                }),
+              ),
             ),
-          ),
         ],
       ),
     );

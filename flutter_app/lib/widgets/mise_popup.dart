@@ -44,11 +44,11 @@ class MisePopup extends StatelessWidget {
                 children: [
                   Text(
                     miseData.nazev,
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w500, color: Colors.black, letterSpacing: -0.5),
+                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: -0.5),
                   ),
                   Text(
                     '0/${trasaMise.length}',
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w400, color: Colors.black),
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                 ],
               ),
@@ -66,7 +66,7 @@ class MisePopup extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Text(
                 miseData.textCast1,
-                style: const TextStyle(fontSize: 15, height: 1.2, color: Colors.black),
+                style: const TextStyle(fontSize: 15, height: 1.2, color: Colors.black, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 20),
@@ -87,7 +87,7 @@ class MisePopup extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Text(
                 miseData.textCast2,
-                style: const TextStyle(fontSize: 15, height: 1.2, color: Colors.black),
+                style: const TextStyle(fontSize: 15, height: 1.2, color: Colors.black, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 20),
@@ -97,7 +97,7 @@ class MisePopup extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.only(bottom: 2),
                 decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1.5))),
-                child: const Text('Informace', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500, color: Colors.black)),
+                child: const Text('Informace', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
               ),
             ),
             const SizedBox(height: 20),
@@ -105,11 +105,11 @@ class MisePopup extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: Column(
                 children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Center(child: Text(miseData.pocetBodu, style: const TextStyle(fontSize: 16, color: Colors.black)))), Expanded(child: Center(child: Text(miseData.vzdalenost, style: const TextStyle(fontSize: 16, color: Colors.black))))]),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Center(child: Text(miseData.pocetBodu, style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold)))), Expanded(child: Center(child: Text(miseData.vzdalenost, style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold))))]),
                   const SizedBox(height: 16),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Center(child: Text(miseData.obtiznost, style: const TextStyle(fontSize: 16, color: Colors.black)))), Expanded(child: Center(child: Text(miseData.cas, style: const TextStyle(fontSize: 16, color: Colors.black))))]),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Center(child: Text(miseData.obtiznost, style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold)))), Expanded(child: Center(child: Text(miseData.cas, style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold))))]),
                   const SizedBox(height: 16),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Center(child: Text(miseData.bonusy, style: const TextStyle(fontSize: 16, color: Colors.black)))), Expanded(child: Center(child: Text(miseData.typ, style: const TextStyle(fontSize: 16, color: Colors.black))))]),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Expanded(child: Center(child: Text(miseData.bonusy, style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold)))), Expanded(child: Center(child: Text(miseData.typ, style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold))))]),
                 ],
               ),
             ),
@@ -124,7 +124,7 @@ class MisePopup extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                   decoration: BoxDecoration(border: Border.all(color: Colors.black, width: 1.5), borderRadius: BorderRadius.circular(20)),
-                  child: const Text('Vyrazit!', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.black)),
+                  child: const Text('Vyrazit!', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
                 ),
               ),
             ),

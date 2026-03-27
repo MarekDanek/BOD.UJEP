@@ -13,8 +13,14 @@ class BodUjepApp extends StatelessWidget {
     return MaterialApp(
       title: 'Navandr',
       theme: ThemeData(
-      fontFamily: "Topol"
+      fontFamily: "Topol",
       ),
+      builder: (context, child) {
+        return DefaultTextStyle.merge(
+          style: const TextStyle(fontWeight: FontWeight.bold),
+          child: child!,
+        );
+      },
       home: const StartScreen(),
     );
   }

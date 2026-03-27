@@ -30,11 +30,15 @@ class BonusovaStranka {
   final String? obrazek;
   final String? podnadpis;
   final String text;
+  final String? malyText;
+  final bool? zaoblitObrazek;
 
   BonusovaStranka({
     this.obrazek,
     this.podnadpis,
     required this.text,
+    this.malyText,
+    this.zaoblitObrazek,
   });
 }
 
@@ -47,7 +51,6 @@ class BodMise {
   final String textCast2;
   final double lat;
   final double lon;
-
 
   final String? bonusAudioPath;
   final List<BonusovaStranka>? bonusoveStranky;
@@ -104,8 +107,12 @@ final List<BodMise> trasaMise = [
     bonusAudioPath: 'assets/audio/music.mp3',
     bonusoveStranky: [
       BonusovaStranka(
+        podnadpis: 'Bonus',
         obrazek: 'assets/BOD2_2.png',
-        text: 'Tokio Drift — bejby navždy',
+        text: 'Tokio Drift — bejby navždy.',
+        malyText: 'Skladbu můžeš poslouchat\nna cestě k dalšímu bodu',
+
+        zaoblitObrazek: true,
       )
     ],
   ),
@@ -119,8 +126,6 @@ final List<BodMise> trasaMise = [
     lat: 50.6657314,
     lon: 14.0255567,
 
-
-    bonusAudioPath: 'assets/audio/music.mp3',
     bonusoveStranky: [
       BonusovaStranka(
         obrazek: 'assets/BOD3_vtip_1.png',
@@ -142,6 +147,15 @@ final List<BodMise> trasaMise = [
     textCast2: 'Chvíli jsem na ně jen koukal.\n\nNěkdy člověk nepotřebuje řešit velké věci.\nStačí vědět, že existují chlebíčky.',
     lat: 50.6656114,
     lon: 14.0249397,
+
+    bonusoveStranky: [
+      BonusovaStranka(
+        podnadpis: 'Dostal jsi za odměnu:',
+        obrazek: 'assets/BOD4_chlebicek.png',
+        text: 'Chlebíček s debrecínkou!',
+        malyText: 'Ale jsi vegetarián,\ntak jsi ho musel jít vyměnit\nza chlebíček s pórkem.',
+      ),
+    ],
   ),
   BodMise(
     id: 5,
@@ -152,6 +166,15 @@ final List<BodMise> trasaMise = [
     textCast2: 'Gratulujeme,\ndokončil jsi misi!',
     lat: 50.6659875,
     lon: 14.0246164,
+
+    bonusoveStranky: [
+      BonusovaStranka(
+        obrazek: 'assets/BOD5_cigareta.png',
+        podnadpis: 'Bonus',
+        text: 'Cigareta s Mílou',
+        malyText: 'Přišel kamarád Míla a Petr s ním dává \nvzápěťáka. Život nikdy nebyl krásnější.',
+      ),
+    ],
   ),
 ];
 

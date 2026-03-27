@@ -14,13 +14,21 @@ class StartScreen extends StatelessWidget {
         levaIkona: Icons.map_outlined,
         barvaPozadi: Colors.transparent,
         naLevaIkonaKlik: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const MapaScreen()),
-          );
+          // CHYTRÁ LOGIKA NÁVRATU:
+          // Pokud pod tímto menu už nějaká mapa běží (jsme ve hře), jen menu zavřeme.
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            // Pokud jsme aplikaci zrovna zapnuli a žádná mapa ještě neběží, tak ji vytvoříme.
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MapaScreen()),
+            );
+          }
         },
         pravaIkona: Icons.close,
         naPravaIkonaKlik: () {
+          // Tady můžeš dát třeba ukončení aplikace nebo návrat
         },
       ),
 
@@ -36,7 +44,6 @@ class StartScreen extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
