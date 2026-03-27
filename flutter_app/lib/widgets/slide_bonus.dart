@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import '../data/mise_data.dart';
 import 'audio_player.dart';
 
-class ZiskanyBonus {
-  final BonusovaStranka stranka;
-  final String? audioPath;
-  ZiskanyBonus(this.stranka, this.audioPath);
-}
-
 class PrehledBonusuPopup extends StatefulWidget {
   final List<ZiskanyBonus> vsetkyBonusy;
 
@@ -101,7 +95,7 @@ class _PrehledBonusuPopupState extends State<PrehledBonusuPopup> {
             },
           ),
 
-          if (widget.vsetkyBonusy[_currentPage].audioPath != null)
+         if (widget.vsetkyBonusy[_currentPage].audioPath != null)
             Positioned(
               bottom: 80,
               left: 20,
@@ -110,6 +104,7 @@ class _PrehledBonusuPopupState extends State<PrehledBonusuPopup> {
                 nazevSkladby: widget.vsetkyBonusy[_currentPage].stranka.text,
                 audioPath: widget.vsetkyBonusy[_currentPage].audioPath!,
                 onZavrit: () {},
+                zobrazitKrizek: false,
               ),
             ),
 

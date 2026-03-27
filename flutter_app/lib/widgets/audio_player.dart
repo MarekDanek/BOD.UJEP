@@ -5,12 +5,14 @@ class MiniAudioPlayer extends StatefulWidget {
   final String nazevSkladby;
   final String audioPath;
   final VoidCallback onZavrit;
+  final bool zobrazitKrizek;
 
   const MiniAudioPlayer({
     super.key,
     required this.nazevSkladby,
     required this.audioPath,
     required this.onZavrit,
+    this.zobrazitKrizek = true,
   });
 
   @override
@@ -22,8 +24,6 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
   bool _isPlaying = false;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
-
-  // Pamatuje si pozici, když prstem táhneš posuvník (nyní v milisekundách!)
   double? _dragPosition;
 
   @override
@@ -35,7 +35,6 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
   Future<void> _setupAudio() async {
     await _audioPlayer.setSource(AssetSource(widget.audioPath.replaceAll('assets/', '')));
 
-    // Řekneme si o celkovou délku natvrdo, ať se odemkne Slider
     final d = await _audioPlayer.getDuration();
     if (d != null && mounted) {
       setState(() => _duration = d);
@@ -54,7 +53,7 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
         setState(() {
           _isPlaying = false;
           _position = Duration.zero;
-          _dragPosition = null; // Vyčistíme paměť po dohrání
+          _dragPosition = null;
         });
       }
     });
@@ -84,7 +83,6 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    // Čas, který se zrovna ukazuje (změněno na milisekundy pro maximální plynulost)
     final zobrazenyCas = _dragPosition != null
         ? Duration(milliseconds: _dragPosition!.toInt())
         : _position;
@@ -107,7 +105,6 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
 
           Expanded(
             child: Column(
-              // Musíme Column roztáhnout, aby Slider vyplnil místo správně
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -122,7 +119,6 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
                   ),
                   child: Slider(
                     min: 0,
-                    // Vše převedeno na milisekundy = krásně plynulé tažení
                     max: _duration.inMilliseconds > 0 ? _duration.inMilliseconds.toDouble() : 1,
                     value: (_dragPosition ?? _position.inMilliseconds.toDouble()).clamp(0, _duration.inMilliseconds > 0 ? _duration.inMilliseconds.toDouble() : 1),
                     onChanged: (value) {
@@ -157,13 +153,14 @@ class _MiniAudioPlayerState extends State<MiniAudioPlayer> {
             ),
           ),
 
-          GestureDetector(
-            onTap: widget.onZavrit,
-            child: const Padding(
-              padding: EdgeInsets.only(left: 8.0),
-              child: Icon(Icons.close, color: Colors.black54),
+          if (widget.zobrazitKrizek)
+            GestureDetector(
+              onTap: widget.onZavrit,
+              child: const Padding(
+                padding: EdgeInsets.only(left: 8.0),
+                child: Icon(Icons.close, color: Colors.black54),
+              ),
             ),
-          ),
         ],
       ),
     );

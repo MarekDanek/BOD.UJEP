@@ -69,6 +69,13 @@ class BodMise {
   });
 }
 
+class ZiskanyBonus {
+  final BonusovaStranka stranka;
+  final String? audioPath;
+
+  ZiskanyBonus(this.stranka, this.audioPath);
+}
+
 final dataMise = Mise(
   nazev: 'Mise Kuneš',
   podnadpis: 'Noir příběh z kampusu',
