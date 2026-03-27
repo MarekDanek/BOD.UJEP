@@ -1,0 +1,236 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../utils/logika_cesty.dart';
+import '../../utils/dialog_manager.dart';
+import '../../utils/gps_logika.dart';
+import '../../data/mise_data.dart';
+import '../../widgets/bonus_popup.dart';
+import '../../widgets/konec_mise_popup.dart';
+import '../../widgets/slide_bonus.dart';
+
+class MapaController {
+  final VoidCallback notifyListeners; // Nahrazuje setState
+  final TickerProvider vsync; // Pro radar animaci
+  final BuildContext context; // Pro vyskakovací okna
+  final bool Function() isMounted; // Ochrana proti pádům
+
+  // --- PROMĚNNÉ ---
+  int stavHry = 0;
+  int aktualniBod = 1;
+  List<LatLng> trasaPoChodniku = [];
+  List<LatLng> pevnaTrasa = [];
+  BodMise? aktivniBonus;
+  bool skrytyPrehravac = false;
+  bool miseDokoncena = false;
+
+  final MapController mapController = MapController();
+  StreamSubscription? _positionSub;
+  LatLng? userLatLng;
+  String? locationError;
+  bool followUser = true;
+
+  late final AnimationController radarController;
+  late final Animation<double> radarAnimation;
+
+  MapaController({
+    required this.notifyListeners,
+    required this.vsync,
+    required this.context,
+    required this.isMounted,
+  }) {
+    _init();
+  }
+
+  // --- INICIALIZACE A ÚKLID ---
+  void _init() {
+    loadMiseState();
+    radarController = AnimationController(vsync: vsync, duration: const Duration(seconds: 2))..repeat(reverse: true);
+    radarAnimation = CurvedAnimation(parent: radarController, curve: Curves.easeInOut);
+    startLocationTracking();
+  }
+
+  void dispose() {
+    _positionSub?.cancel();
+    radarController.dispose();
+  }
+
+  void zmenStav(VoidCallback akce) {
+    akce();
+    notifyListeners(); // Zaktualizuje obrazovku
+  }
+
+  // --- PAMĚŤ A RESET ---
+  Future<void> loadMiseState() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (isMounted()) {
+      zmenStav(() => miseDokoncena = prefs.getBool('mise_kunes_hotovo') ?? false);
+    }
+  }
+
+  Future<void> saveMiseState(bool hotovo) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('mise_kunes_hotovo', hotovo);
+  }
+
+  void resetMise() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Resetovat misi?', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Opravdu chceš vymazat svůj postup a jít misi odznova?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Zrušit', style: TextStyle(color: Colors.black))),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              zmenStav(() {
+                miseDokoncena = false; stavHry = 0; aktualniBod = 1;
+                trasaPoChodniku.clear(); pevnaTrasa.clear(); aktivniBonus = null;
+              });
+              saveMiseState(false);
+            },
+            child: const Text('Resetovat', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- GPS A LOKACE ---
+  Future<void> startLocationTracking() async {
+    try {
+      final pos = await GpsLogika.getInitialPosition();
+      if (!isMounted()) return;
+
+      zmenStav(() { userLatLng = LatLng(pos.latitude, pos.longitude); locationError = null; });
+      if (followUser) mapController.move(userLatLng!, 18.0);
+
+      _positionSub?.cancel();
+      _positionSub = GpsLogika.getPositionStream().listen(
+        (newPos) {
+          if (!isMounted()) return;
+          zmenStav(() => userLatLng = LatLng(newPos.latitude, newPos.longitude));
+          if (followUser) mapController.move(userLatLng!, mapController.camera.zoom);
+          if (stavHry == 1) vypocitejTrasu();
+        },
+        onError: (e) { if (isMounted()) zmenStav(() => locationError = e.toString().replaceAll('Exception: ', '')); },
+      );
+    } catch (e) {
+      if (isMounted()) zmenStav(() => locationError = e.toString().replaceAll('Exception: ', ''));
+    }
+  }
+
+  void centerOnUser() {
+    if (userLatLng == null) return;
+    zmenStav(() => followUser = true);
+    mapController.move(userLatLng!, 18.0);
+  }
+
+  // --- VÝPOČTY TRASY ---
+  Future<void> vypocitejTrasu() async {
+    if (userLatLng == null || aktualniBod > trasaMise.length) return;
+    final cilovyBod = trasaMise[aktualniBod - 1];
+    final novaTrasa = await LogikaCesty.ziskejTrasuPoChodniku([userLatLng!, LatLng(cilovyBod.lat, cilovyBod.lon)]);
+    if (isMounted()) zmenStav(() => trasaPoChodniku = novaTrasa);
+  }
+
+  Future<void> vypocitejHistorickouTrasu() async {
+    try {
+      final List<LatLng> body = (stavHry == 3)
+          ? trasaMise.map((b) => LatLng(b.lat, b.lon)).toList()
+          : (aktualniBod < 2) ? [] : trasaMise.sublist(0, aktualniBod).map((b) => LatLng(b.lat, b.lon)).toList();
+
+      if (body.isEmpty) { zmenStav(() => pevnaTrasa = []); return; }
+      final novaTrasa = await LogikaCesty.ziskejTrasuPoChodniku(body);
+      if (isMounted()) zmenStav(() => pevnaTrasa = novaTrasa);
+    } catch (e) { debugPrint('Chyba trasy: $e'); }
+  }
+
+  // --- LOGIKA HRY ---
+  void prepniNaStav(int novyStav) {
+    zmenStav(() {
+      stavHry = novyStav;
+      if (novyStav == 0) {
+        aktualniBod = 1; trasaPoChodniku.clear(); pevnaTrasa.clear(); aktivniBonus = null; skrytyPrehravac = false;
+      }
+    });
+  }
+
+  void onStartVyrazit() {
+    prepniNaStav(1);
+    vypocitejTrasu();
+  }
+
+  void posunNaDalsiBod() {
+    if (aktualniBod < trasaMise.length) {
+      zmenStav(() => aktualniBod++);
+      prepniNaStav(1);
+      vypocitejTrasu();
+      vypocitejHistorickouTrasu();
+    } else {
+      zobrazKonecMise();
+    }
+  }
+
+  void zobrazKonecMise() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => KonecMisePopup(
+        historieBodu: trasaMise,
+        miseData: dataMise,
+        onUzavrit: () {
+          Navigator.pop(context);
+          zmenStav(() => miseDokoncena = true);
+          prepniNaStav(0);
+          saveMiseState(true);
+        },
+        onBonusy: () {
+          final vsetkyBonusy = trasaMise
+              .where((bod) => bod.bonusoveStranky != null)
+              .expand((bod) => bod.bonusoveStranky!.map((stranka) => ZiskanyBonus(stranka, bod.bonusAudioPath)))
+              .toList();
+          Navigator.push(context, MaterialPageRoute(fullscreenDialog: true, builder: (context) => PrehledBonusuPopup(vsetkyBonusy: vsetkyBonusy)));
+        },
+      ),
+    );
+  }
+
+  void onPribehPokracovat() {
+    final soucasnyBod = trasaMise[aktualniBod - 1];
+    if (soucasnyBod.bonusoveStranky?.isNotEmpty ?? false) {
+      Navigator.of(context).push(MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (context) => BonusPopupMultipage(
+          bodData: soucasnyBod,
+          onVyrazitPokracovat: () {
+            if (soucasnyBod.bonusAudioPath != null) zmenStav(() { aktivniBonus = soucasnyBod; skrytyPrehravac = false; });
+            posunNaDalsiBod();
+          },
+        ),
+      ));
+    } else {
+      posunNaDalsiBod();
+    }
+  }
+
+  void onMarkerTap() {
+    if (miseDokoncena) {
+      zmenStav(() { stavHry = 3; aktualniBod = trasaMise.length; });
+      vypocitejHistorickouTrasu();
+    } else {
+      if (stavHry == 0) {
+        DialogManager.ukazStartPopup(context: context, miseData: dataMise, onVyrazit: onStartVyrazit);
+        }
+      else if (stavHry == 1) {
+        prepniNaStav(2);
+      }
+    }
+  }
+}

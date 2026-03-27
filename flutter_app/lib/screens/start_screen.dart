@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'mapa_screen.dart';
+import 'mapa/mapa_screen.dart';
 import '../widgets/app_bar.dart';
 
 class StartScreen extends StatelessWidget {
