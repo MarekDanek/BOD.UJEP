@@ -25,8 +25,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: const Text(
         'Navandr',
         style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w500,
+          fontSize: 40,
+          fontWeight: FontWeight.bold,
           color: Colors.black,
           letterSpacing: -0.5,
         ),

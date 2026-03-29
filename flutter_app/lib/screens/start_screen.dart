@@ -1,9 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'mapa/mapa_screen.dart';
 import '../widgets/app_bar.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
+
+  void _ukazDialogUkonceni(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Center(
+            child: GestureDetector(
+              onTap: () => SystemNavigator.pop(),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFAEFFA4),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Colors.black, width: 1.5),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Text(
+                  'Ukončit aplikaci?',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,12 +56,9 @@ class StartScreen extends StatelessWidget {
         levaIkona: Icons.map_outlined,
         barvaPozadi: Colors.transparent,
         naLevaIkonaKlik: () {
-          // CHYTRÁ LOGIKA NÁVRATU:
-          // Pokud pod tímto menu už nějaká mapa běží (jsme ve hře), jen menu zavřeme.
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
           } else {
-            // Pokud jsme aplikaci zrovna zapnuli a žádná mapa ještě neběží, tak ji vytvoříme.
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const MapaScreen()),
@@ -28,7 +67,7 @@ class StartScreen extends StatelessWidget {
         },
         pravaIkona: Icons.close,
         naPravaIkonaKlik: () {
-          // Tady můžeš dát třeba ukončení aplikace nebo návrat
+          _ukazDialogUkonceni(context);
         },
       ),
 
