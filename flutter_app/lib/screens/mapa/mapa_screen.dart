@@ -82,13 +82,14 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
       if (c.stavHry > 0)
         for (int i = 0; i < trasaMise.length; i++)
           if (c.stavHry == 3)
-            MarkerBuilder.buildNormalMarker(trasaMise[i], () => DialogManager.ukazPribehPopup(
+            // --- ZMĚNA ZDE: Využijeme kulatý marker pro archivní body ---
+            MarkerBuilder.buildPassedPointCircleMarkerWithOnTap(trasaMise[i], () => DialogManager.ukazPribehPopup(
                 context: context, historieBodu: trasaMise.sublist(0, i + 1), miseData: dataMise, onPokracovat: () {}))
           else if (i < c.aktualniBod)
             if (i == c.aktualniBod - 1)
               c.stavHry == 1 ? MarkerBuilder.buildNormalMarker(trasaMise[i], c.onMarkerTap) : MarkerBuilder.buildBigMarker(trasaMise[i])
             else
-              MarkerBuilder.buildSmallDotMarker(trasaMise[i]),
+              MarkerBuilder.buildPassedPointCircleMarker(trasaMise[i]),
 
       MarkerBuilder.buildTestDotMarker(testBod, jeBlizko: testBodJeBlizko),
     ];
@@ -114,7 +115,20 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             children: [
               TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'cz.ujep.bod', keepBuffer: 3,),
 
-              if (c.pevnaTrasa.isNotEmpty) PolylineLayer(polylines: [Polyline(points: c.pevnaTrasa, color: Colors.black, strokeWidth: 5.0)]),
+              // --- ZMĚNA ZDE: Žlutá čára s černým okrajem ---
+              if (c.pevnaTrasa.isNotEmpty)
+                PolylineLayer(
+                  polylines: [
+                    Polyline(
+                      points: c.pevnaTrasa,
+                      color: const Color(0xFFFAED41),
+                      strokeWidth: 5.0,
+                      borderColor: Colors.black, // Černý okraj
+                      borderStrokeWidth: 2.0,    // Tloušťka okraje
+                    )
+                  ]
+                ),
+
               if (c.stavHry == 1 && c.trasaPoChodniku.isNotEmpty) PolylineLayer(polylines: [Polyline(points: c.trasaPoChodniku, color: const Color(0xE6FAED41), strokeWidth: 5.0)]),
 
               if (c.userLatLng != null) RadarLayer(position: c.userLatLng!, animation: c.radarAnimation),
@@ -151,8 +165,8 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
           if (c.stavHry == 1) PanelPresun(bodData: trasaMise[c.aktualniBod - 1], aktualniBod: c.aktualniBod),
           if (c.stavHry == 2) PanelDorazil(bodData: trasaMise[c.aktualniBod - 1], aktualniBod: c.aktualniBod, onOtevrit: () => DialogManager.ukazPribehPopup(context: context, historieBodu: trasaMise.sublist(0, c.aktualniBod), miseData: dataMise, onPokracovat: c.onPribehPokracovat)),
 
-          // --- NOVINKA: INTERAKTIVNÍ VYSOUVACÍ PANEL V ARCHIVU ---
-          if (c.stavHry == 3)
+          // --- NOVINKA: Obalení do vizuálního bloku pomocí Spread operátoru ...[ ] ---
+          if (c.stavHry == 3) ...[
             DraggableScrollableSheet(
               initialChildSize: 0.35,
               minChildSize: 0.12,
@@ -166,6 +180,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                 );
               },
             ),
+          ], // <-- Tady tvůj blok končí
         ],
       ),
     );

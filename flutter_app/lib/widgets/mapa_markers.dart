@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../data/mise_data.dart';
-import 'dokoncena_mise_bublina.dart'; // <--- IMPORT NAŠÍ BUBLINY
+import 'dokoncena_mise_bublina.dart';
 
 class MarkerBuilder {
   // --- START MARKER ---
@@ -148,6 +148,62 @@ class MarkerBuilder {
           child: Text(
             'BOD${point.id}',
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- KULATÝ BOD (PROŠLÁ TRASA BĚHEM HRANÍ) ---
+  static Marker buildPassedPointCircleMarker(BodMise bod) {
+    return Marker(
+      point: LatLng(bod.lat, bod.lon),
+      width: 20.0,
+      height: 20.0,
+      alignment: Alignment.center,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFFFAED41),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.black, width: 1.5),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 3,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- KULATÝ BOD PRO ARCHIV S MOŽNOSTÍ KLIKNUTÍ ---
+  static Marker buildPassedPointCircleMarkerWithOnTap(BodMise bod, VoidCallback onTap) {
+    return Marker(
+      point: LatLng(bod.lat, bod.lon),
+      width: 40.0,
+      height: 40.0,
+      alignment: Alignment.center,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: Container(
+            width: 20.0,
+            height: 20.0,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFAED41),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.black, width: 1.5),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 3,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
           ),
         ),
       ),
