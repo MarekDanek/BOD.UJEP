@@ -6,11 +6,18 @@ class ArchivMisePopup extends StatelessWidget {
   final int pocetBodu;
   final ScrollController scrollController; // <--- PŘIDÁNO PRO TAHÁNÍ
 
+  // --- PŘIDÁNO PRO STATISTIKY ---
+  final String odehranyCas;
+  final String uslaVzdalenost;
+
   const ArchivMisePopup({
     super.key,
     required this.miseData,
     required this.pocetBodu,
-    required this.scrollController, // <--- PŘIDÁNO
+    required this.scrollController,
+
+    this.odehranyCas = '00:00',
+    this.uslaVzdalenost = '0 m',
   });
 
   @override
@@ -26,9 +33,9 @@ class ArchivMisePopup extends StatelessWidget {
           BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, -4)) // Stín nahoru
         ],
       ),
-      // Místo Column je tu ListView, které reaguje na tahání prstem
+
       child: ListView(
-        controller: scrollController, // <--- TADY SE TO PROPOJUJE
+        controller: scrollController,
         padding: const EdgeInsets.only(left: 24, right: 24, top: 12, bottom: 40),
         children: [
           Center(
@@ -70,6 +77,36 @@ class ArchivMisePopup extends StatelessWidget {
               const Text('Úspěšně dokončeno', style: TextStyle(fontSize: 14, color: Colors.black87)),
             ],
           ),
+
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: Colors.black, width: 1),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.timer_outlined, size: 22, color: Colors.black),
+                    const SizedBox(width: 6),
+                    Text(odehranyCas, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.directions_walk, size: 22, color: Colors.black),
+                    const SizedBox(width: 6),
+                    Text(uslaVzdalenost, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
           const SizedBox(height: 20),
           const Text(
             'Prošel jsem kampus. Menzu. Prostranství. Bankomat. Bufet. Malé zastávky velkého dne. Hudba dohrála. Cigareta pomalu dohořívá.\nA já jsem konečně dorazil tam, kam jsem měl namířeno od začátku. Do práce.',

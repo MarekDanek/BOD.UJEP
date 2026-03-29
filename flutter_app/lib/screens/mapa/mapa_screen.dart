@@ -75,7 +75,6 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
       if (c.stavHry == 0) MarkerBuilder.buildStartMarker(trasaMise.first, c.onMarkerTap),
 
-      // Zobrazení "bubliny" POD startovním bodem, pokud je mise dokončena
       if (c.stavHry == 0 && c.miseDokoncena)
         MarkerBuilder.buildDokoncenaBublinaMarker(trasaMise.first, c.onMarkerTap),
 
@@ -115,7 +114,6 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             children: [
               TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'cz.ujep.bod', keepBuffer: 3,),
 
-              // --- ZMĚNA ZDE: Žlutá čára s černým okrajem ---
               if (c.pevnaTrasa.isNotEmpty)
                 PolylineLayer(
                   polylines: [
@@ -123,8 +121,8 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                       points: c.pevnaTrasa,
                       color: const Color(0xFFFAED41),
                       strokeWidth: 5.0,
-                      borderColor: Colors.black, // Černý okraj
-                      borderStrokeWidth: 2.0,    // Tloušťka okraje
+                      borderColor: Colors.black,
+                      borderStrokeWidth: 2.0,
                     )
                   ]
                 ),
@@ -165,24 +163,25 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
           if (c.stavHry == 1) PanelPresun(bodData: trasaMise[c.aktualniBod - 1], aktualniBod: c.aktualniBod),
           if (c.stavHry == 2) PanelDorazil(bodData: trasaMise[c.aktualniBod - 1], aktualniBod: c.aktualniBod, onOtevrit: () => DialogManager.ukazPribehPopup(context: context, historieBodu: trasaMise.sublist(0, c.aktualniBod), miseData: dataMise, onPokracovat: c.onPribehPokracovat)),
 
-          // --- NOVINKA: Obalení do vizuálního bloku pomocí Spread operátoru ...[ ] ---
           if (c.stavHry == 3) ...[
-            DraggableScrollableSheet(
-              initialChildSize: 0.35,
-              minChildSize: 0.12,
-              maxChildSize: 0.45,
-              snap: true,
-              builder: (BuildContext context, ScrollController scrollController) {
-                return ArchivMisePopup(
-                  miseData: dataMise,
-                  pocetBodu: trasaMise.length,
-                  scrollController: scrollController,
-                );
-              },
+                  DraggableScrollableSheet(
+                    initialChildSize: 0.35,
+                    minChildSize: 0.12,
+                    maxChildSize: 0.45,
+                    snap: true,
+                    builder: (BuildContext context, ScrollController scrollController) {
+                      return ArchivMisePopup(
+                        miseData: dataMise,
+                        pocetBodu: trasaMise.length,
+                        scrollController: scrollController,
+                        odehranyCas: c.getFormattedTime(),
+                        uslaVzdalenost: c.getFormattedDistance(),
+                      );
+                    },
+                  ),
+                ],
+              ],
             ),
-          ], // <-- Tady tvůj blok končí
-        ],
-      ),
-    );
-  }
-}
+          );
+        }
+      }

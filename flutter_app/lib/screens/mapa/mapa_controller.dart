@@ -13,12 +13,11 @@ import '../../widgets/konec_mise_popup.dart';
 import '../../widgets/slide_bonus.dart';
 
 class MapaController {
-  final VoidCallback notifyListeners; // Nahrazuje setState
-  final TickerProvider vsync; // Pro radar animaci
-  final BuildContext context; // Pro vyskakovací okna
-  final bool Function() isMounted; // Ochrana proti pádům
+  final VoidCallback notifyListeners;
+  final TickerProvider vsync;
+  final BuildContext context;
+  final bool Function() isMounted;
 
-  // --- PROMĚNNÉ ---
   int stavHry = 0;
   int aktualniBod = 1;
   List<LatLng> trasaPoChodniku = [];
@@ -26,6 +25,11 @@ class MapaController {
   BodMise? aktivniBonus;
   bool skrytyPrehravac = false;
   bool miseDokoncena = false;
+
+  DateTime? startTime;
+  int celkovyCasSekundy = 0;
+  double celkovaVzdalenostMetry = 0.0;
+  LatLng? lastTrackedPosition;
 
   final MapController mapController = MapController();
   StreamSubscription? _positionSub;
@@ -45,7 +49,6 @@ class MapaController {
     _init();
   }
 
-  // --- INICIALIZACE A ÚKLID ---
   void _init() {
     loadMiseState();
     radarController = AnimationController(vsync: vsync, duration: const Duration(seconds: 2))..repeat(reverse: true);
@@ -60,20 +63,25 @@ class MapaController {
 
   void zmenStav(VoidCallback akce) {
     akce();
-    notifyListeners(); // Zaktualizuje obrazovku
+    notifyListeners();
   }
 
-  // --- PAMĚŤ A RESET ---
   Future<void> loadMiseState() async {
     final prefs = await SharedPreferences.getInstance();
     if (isMounted()) {
-      zmenStav(() => miseDokoncena = prefs.getBool('mise_kunes_hotovo') ?? false);
+      zmenStav(() {
+        miseDokoncena = prefs.getBool('mise_kunes_hotovo') ?? false;
+        celkovyCasSekundy = prefs.getInt('mise_kunes_cas') ?? 0;
+        celkovaVzdalenostMetry = prefs.getDouble('mise_kunes_vzdalenost') ?? 0.0;
+      });
     }
   }
 
   Future<void> saveMiseState(bool hotovo) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('mise_kunes_hotovo', hotovo);
+    await prefs.setInt('mise_kunes_cas', celkovyCasSekundy);
+    await prefs.setDouble('mise_kunes_vzdalenost', celkovaVzdalenostMetry);
   }
 
   void resetMise() {
@@ -81,27 +89,30 @@ class MapaController {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Resetovat misi?', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text('Opravdu chceš vymazat svůj postup a jít misi odznova?'),
+        content: const Text('Opravdu chceš vymazat svůj postup a jít misi odznova?', style: TextStyle(fontWeight: FontWeight.bold),),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Zrušit', style: TextStyle(color: Colors.black))),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Zrušit', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold))),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               zmenStav(() {
                 miseDokoncena = false; stavHry = 0; aktualniBod = 1;
                 trasaPoChodniku.clear(); pevnaTrasa.clear(); aktivniBonus = null;
+                startTime = null;
+                celkovyCasSekundy = 0;
+                celkovaVzdalenostMetry = 0.0;
+                lastTrackedPosition = null;
               });
               saveMiseState(false);
             },
-            child: const Text('Resetovat', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            child: const Text('Resetovat', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
     );
   }
 
-  // --- GPS A LOKACE ---
   Future<void> startLocationTracking() async {
     try {
       final pos = await GpsLogika.getInitialPosition();
@@ -109,12 +120,28 @@ class MapaController {
 
       zmenStav(() { userLatLng = LatLng(pos.latitude, pos.longitude); locationError = null; });
       if (followUser) mapController.move(userLatLng!, 18.0);
+      lastTrackedPosition = userLatLng;
 
       _positionSub?.cancel();
       _positionSub = GpsLogika.getPositionStream().listen(
         (newPos) {
           if (!isMounted()) return;
-          zmenStav(() => userLatLng = LatLng(newPos.latitude, newPos.longitude));
+          final newLatLng = LatLng(newPos.latitude, newPos.longitude);
+
+          zmenStav(() {
+            userLatLng = newLatLng;
+
+            if ((stavHry == 1 || stavHry == 2) && lastTrackedPosition != null) {
+              final distance = const Distance().as(LengthUnit.Meter, lastTrackedPosition!, newLatLng);
+              if (distance > 2) {
+                celkovaVzdalenostMetry += distance;
+                lastTrackedPosition = newLatLng;
+              }
+            } else {
+              lastTrackedPosition = newLatLng;
+            }
+          });
+
           if (followUser) mapController.move(userLatLng!, mapController.camera.zoom);
           if (stavHry == 1) vypocitejTrasu();
         },
@@ -131,7 +158,6 @@ class MapaController {
     mapController.move(userLatLng!, 18.0);
   }
 
-  // --- VÝPOČTY TRASY ---
   Future<void> vypocitejTrasu() async {
     if (userLatLng == null || aktualniBod > trasaMise.length) return;
     final cilovyBod = trasaMise[aktualniBod - 1];
@@ -151,7 +177,6 @@ class MapaController {
     } catch (e) { debugPrint('Chyba trasy: $e'); }
   }
 
-  // --- LOGIKA HRY ---
   void prepniNaStav(int novyStav) {
     zmenStav(() {
       stavHry = novyStav;
@@ -162,6 +187,10 @@ class MapaController {
   }
 
   void onStartVyrazit() {
+    startTime = DateTime.now();
+    celkovaVzdalenostMetry = 0.0;
+    lastTrackedPosition = userLatLng;
+
     prepniNaStav(1);
     vypocitejTrasu();
   }
@@ -173,6 +202,9 @@ class MapaController {
       vypocitejTrasu();
       vypocitejHistorickouTrasu();
     } else {
+      if (startTime != null) {
+        celkovyCasSekundy = DateTime.now().difference(startTime!).inSeconds;
+      }
       zobrazKonecMise();
     }
   }
@@ -220,17 +252,28 @@ class MapaController {
     }
   }
 
-void onMarkerTap() {
+  void onMarkerTap() {
     if (miseDokoncena) {
       zmenStav(() { stavHry = 3; aktualniBod = trasaMise.length; });
       vypocitejHistorickouTrasu();
     } else {
       if (stavHry == 0) {
         DialogManager.ukazStartPopup(context: context, miseData: dataMise, onVyrazit: onStartVyrazit);
-        }
-      else if (stavHry == 1) {
+      } else if (stavHry == 1) {
         prepniNaStav(2);
-        }
+      }
     }
+  }
+
+  String getFormattedTime() {
+    final int minuty = celkovyCasSekundy ~/ 60;
+    return '$minuty min';
+  }
+
+  String getFormattedDistance() {
+    if (celkovaVzdalenostMetry > 1000) {
+      return '${(celkovaVzdalenostMetry / 1000).toStringAsFixed(1)} km';
+    }
+    return '${celkovaVzdalenostMetry.toInt()} m';
   }
 }
