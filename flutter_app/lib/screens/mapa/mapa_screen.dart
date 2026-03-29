@@ -112,7 +112,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
               onPositionChanged: (pos, hasGesture) { if (hasGesture && c.followUser) c.zmenStav(() => c.followUser = false); },
             ),
             children: [
-              TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'cz.ujep.bod'),
+              TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'cz.ujep.bod', keepBuffer: 3,),
 
               if (c.pevnaTrasa.isNotEmpty) PolylineLayer(polylines: [Polyline(points: c.pevnaTrasa, color: Colors.black, strokeWidth: 5.0)]),
               if (c.stavHry == 1 && c.trasaPoChodniku.isNotEmpty) PolylineLayer(polylines: [Polyline(points: c.trasaPoChodniku, color: const Color(0xE6FAED41), strokeWidth: 5.0)]),
