@@ -68,7 +68,8 @@ class MarkerBuilder {
   }
 
   // --- NORMÁLNÍ BĚŽNÝ BOD ---
-  static Marker buildNormalMarker(BodMise point, VoidCallback onTap) {
+  static Marker buildNormalMarker(BodMise point, VoidCallback onTap,{required bool jeBlizko}) {
+    final Color barva = jeBlizko ? const Color(0xFF34C759) : const Color(0xFFFAED41);
     return Marker(
       point: LatLng(point.lat, point.lon),
       width: 60,
@@ -92,7 +93,7 @@ class MarkerBuilder {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFAED41),
+                  color: barva,
                   border: Border.all(color: Colors.black, width: 2),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20),

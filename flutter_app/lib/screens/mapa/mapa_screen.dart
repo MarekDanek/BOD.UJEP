@@ -69,7 +69,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
     }
   }
 
-  List<Marker> _buildMarkers(bool testBodJeBlizko) {
+  List<Marker> _buildMarkers(bool bodJeBlizko) {
     return [
       if (c.userLatLng != null) MarkerBuilder.buildUserMarker(c.userLatLng!),
 
@@ -86,18 +86,18 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                 context: context, historieBodu: trasaMise.sublist(0, i + 1), miseData: dataMise, onPokracovat: () {}))
           else if (i < c.aktualniBod)
             if (i == c.aktualniBod - 1)
-              c.stavHry == 1 ? MarkerBuilder.buildNormalMarker(trasaMise[i], c.onMarkerTap) : MarkerBuilder.buildBigMarker(trasaMise[i])
+              c.stavHry == 1 ? MarkerBuilder.buildNormalMarker(trasaMise[i], c.onMarkerTap,jeBlizko: bodJeBlizko) : MarkerBuilder.buildBigMarker(trasaMise[i])
             else
               MarkerBuilder.buildPassedPointCircleMarker(trasaMise[i]),
 
-      MarkerBuilder.buildTestDotMarker(testBod, jeBlizko: testBodJeBlizko),
+      MarkerBuilder.buildTestDotMarker(testBod, jeBlizko: bodJeBlizko),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool testBodJeBlizko = c.userLatLng != null && VzdalenostBodu.jeUBodu(
-        userLat: c.userLatLng!.latitude, userLon: c.userLatLng!.longitude, cilovyBod: testBod, perimetrMetry: 28);
+    final bool bodJeBlizko = c.userLatLng != null && VzdalenostBodu.jeUBodu(
+        userLat: c.userLatLng!.latitude, userLon: c.userLatLng!.longitude, cilovyBod: trasaMise[c.aktualniBod - 1], perimetrMetry: 28);
 
     return Scaffold(
       appBar: _buildAppBar(),
@@ -133,7 +133,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
               if (c.userLatLng != null) RadarLayer(position: c.userLatLng!, animation: c.radarAnimation),
 
-              MarkerLayer(markers: _buildMarkers(testBodJeBlizko)),
+              MarkerLayer(markers: _buildMarkers(bodJeBlizko)),
             ],
           ),
 
