@@ -11,6 +11,7 @@ class MarkerBuilder {
       point: LatLng(point.lat, point.lon),
       width: 40,
       height: 40,
+      rotate: true,
       child: GestureDetector(
         onTap: onTap,
         child: Container(
@@ -37,6 +38,7 @@ class MarkerBuilder {
       width: 240,
       height: 150,
       alignment: Alignment.center,
+      rotate: true,
       child: Transform.translate(
         offset: const Offset(0, -100), // <--- ZÁPORNÁ HODNOTA = POSUN NAHORU NAD BOD
         child: Align(
@@ -57,6 +59,7 @@ class MarkerBuilder {
       point: LatLng(bod.lat, bod.lon),
       width: 16,
       height: 16,
+      rotate: true,
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFFFAED41),
@@ -74,6 +77,7 @@ class MarkerBuilder {
       point: LatLng(point.lat, point.lon),
       width: 60,
       height: 60,
+      rotate: true,
       child: GestureDetector(
         onTap: onTap,
         child: Stack(
@@ -88,7 +92,7 @@ class MarkerBuilder {
               ),
             ),
             Transform.rotate(
-              angle: 0.785,
+              angle: 0.771,
               child: Container(
                 width: 40,
                 height: 40,
@@ -122,6 +126,7 @@ class MarkerBuilder {
       point: point,
       width: 24,
       height: 24,
+      rotate: true,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.blue,
@@ -139,6 +144,7 @@ class MarkerBuilder {
       point: LatLng(point.lat, point.lon),
       width: 100,
       height: 100,
+      rotate: true,
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFFFAED41),
@@ -162,6 +168,7 @@ class MarkerBuilder {
       width: 20.0,
       height: 20.0,
       alignment: Alignment.center,
+      rotate: true,
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFFFAED41),
@@ -186,6 +193,7 @@ class MarkerBuilder {
       width: 40.0,
       height: 40.0,
       alignment: Alignment.center,
+      rotate: true,
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
@@ -206,24 +214,6 @@ class MarkerBuilder {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  // --- TESTOVACÍ BOD ---
-  static Marker buildTestDotMarker(BodMise bod, {required bool jeBlizko}) {
-    final Color barva = jeBlizko ? const Color(0xFF34C759) : const Color(0xFFFAED41);
-
-    return Marker(
-      point: LatLng(bod.lat, bod.lon),
-      width: 16,
-      height: 16,
-      child: Container(
-        decoration: BoxDecoration(
-          color: barva,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.black, width: 2),
         ),
       ),
     );
