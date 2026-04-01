@@ -12,20 +12,12 @@ class MarkerBuilder {
       width: 40,
       height: 40,
       rotate: true,
-      // Obaleno do Builderu, abychom mohli číst aktuální zoom
       child: Builder(
         builder: (context) {
           final zoom = MapCamera.of(context).zoom;
 
-          // Pokud je mapa hodně oddálená (pod zoom 11), bod úplně zmizí
-          if (zoom < 11.0) {
-            return const SizedBox.shrink();
-          }
 
-          // Výpočet zmenšení:
-          // Zoom 15 a více = velikost 1.0 (100 %)
-          // Zoom 11 = velikost 0.0 (0 %)
-          double myScale = ((zoom - 11.0) / 4.0).clamp(0.0, 1.0);
+          double myScale = ((zoom - 11.0) / 4.0).clamp(0.3, 1.0);
 
           return GestureDetector(
             onTap: onTap,
