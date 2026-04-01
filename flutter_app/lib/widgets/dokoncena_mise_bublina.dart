@@ -18,8 +18,12 @@ class DokoncenaMiseBublina extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 220,
-        padding: const EdgeInsets.only(left: 14, right: 14, top: 12, bottom: 8),
+        // KLÍČOVÁ ZMĚNA: Nahrazeno pevné width: 220 flexibilním omezením
+        constraints: const BoxConstraints(
+          minWidth: 200,
+          maxWidth: 300, // Dovolí bublině být širší, aby se text lépe vešel
+        ),
+        padding: const EdgeInsets.only(left: 14, right: 14, top: 12, bottom: 12), // Trochu zvětšený spodní padding
         decoration: BoxDecoration(
           color: const Color(0xFFFAED41),
           borderRadius: BorderRadius.circular(40),
@@ -33,7 +37,7 @@ class DokoncenaMiseBublina extends StatelessWidget {
           ],
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min, // Zůstává, aby výška odpovídala obsahu
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -48,9 +52,11 @@ class DokoncenaMiseBublina extends StatelessWidget {
                       color: Colors.black,
                       height: 1.1,
                     ),
-                    overflow: TextOverflow.ellipsis,
+                    // U názvu necháme zalomení, pokud by byl moc dlouhý,
+                    // popř. můžeš nechat overflow: TextOverflow.ellipsis
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   '$pocetBodu/$pocetBodu',
                   style: const TextStyle(
@@ -61,7 +67,7 @@ class DokoncenaMiseBublina extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
               miseData.podnadpis,
               style: const TextStyle(
@@ -70,7 +76,7 @@ class DokoncenaMiseBublina extends StatelessWidget {
                 color: Colors.black,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             const Text(
               'Úspěšně dokončeno',
               style: TextStyle(

@@ -36,19 +36,34 @@ class MisePopup extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10), // Trochu zmenšená mezera kvůli křížku
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: const EdgeInsets.only(left: 24.0, right: 16.0), // Upravený padding pro křížek
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    miseData.nazev,
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: -0.5),
+                  // Název mise a postup zabalíme do Columnu, aby byly u sebe
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          miseData.nazev,
+                          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: -0.5),
+                        ),
+                        Text(
+                          '0/${trasaMise.length}', // Ujisti se, že trasaMise je zde dostupná
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      ],
+                    ),
                   ),
-                  Text(
-                    '0/${trasaMise.length}',
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
+                  // Tlačítko pro zavření popupu
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 30, color: Colors.black),
+                    onPressed: () {
+                      Navigator.pop(context); // Zavře popup
+                    },
                   ),
                 ],
               ),

@@ -53,8 +53,10 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
               final pageData = pages[index];
 
               return SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24.0, 10.0, 24.0, 20.0),
+                // Obaleno do SingleChildScrollView pro responzivitu
+                child: SingleChildScrollView(
+                  // Větší spodní padding (120), aby text nevlezl pod plovoucí tlačítka
+                  padding: const EdgeInsets.fromLTRB(24.0, 10.0, 24.0, 200),
                   child: Column(
                     children: [
                       Padding(
@@ -65,7 +67,10 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
                           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                       ),
-                      const Expanded(flex: 1, child: SizedBox()),
+
+                      // Nahrazeno pevným SizedBoxem místo Expanded
+                      const SizedBox(height: 20),
+
                       if (pageData.obrazek != null)
                         pageData.zaoblitObrazek == true
                             ? ClipRRect(
@@ -83,7 +88,9 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
                                 fit: BoxFit.contain,
                                 height: MediaQuery.of(context).size.height * 0.45,
                               ),
+
                       const SizedBox(height: 30),
+
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Text(
@@ -92,6 +99,7 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
                           style: const TextStyle(fontSize: 22, height: 1.3, fontWeight: FontWeight.bold),
                         ),
                       ),
+
                       if (pageData.malyText != null) ...[
                         const SizedBox(height: 12),
                         Padding(
@@ -103,13 +111,14 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
                           ),
                         ),
                       ],
-                      const Expanded(flex: 2, child: SizedBox()),
                     ],
                   ),
                 ),
               );
             },
           ),
+
+          // Křížek pro zavření
           SafeArea(
             child: Align(
               alignment: Alignment.topRight,
@@ -122,6 +131,8 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
               ),
             ),
           ),
+
+          // Tlačítko Pokračovat (zobrazí se jen na poslední stránce)
           if (_currentPage == pages.length - 1)
             Positioned(
               bottom: 60,
@@ -139,6 +150,7 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
+                    backgroundColor: const Color(0xFFFAED41), // Přidáno pozadí, aby pod ním neprosvítal text
                   ),
                   child: const Text(
                     'Pokračovat',
@@ -147,6 +159,8 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
                 ),
               ),
             ),
+
+          // Tečky (indikátor stránek)
           if (pages.length > 1)
             Positioned(
               bottom: 30,

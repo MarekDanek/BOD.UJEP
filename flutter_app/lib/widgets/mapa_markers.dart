@@ -12,43 +12,80 @@ class MarkerBuilder {
       width: 40,
       height: 40,
       rotate: true,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFFFAED41),
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.black, width: 2),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 5,
-                offset: Offset(0, 3),
+      // Obaleno do Builderu, abychom mohli číst aktuální zoom
+      child: Builder(
+        builder: (context) {
+          final zoom = MapCamera.of(context).zoom;
+
+          // Pokud je mapa hodně oddálená (pod zoom 11), bod úplně zmizí
+          if (zoom < 11.0) {
+            return const SizedBox.shrink();
+          }
+
+          // Výpočet zmenšení:
+          // Zoom 15 a více = velikost 1.0 (100 %)
+          // Zoom 11 = velikost 0.0 (0 %)
+          double myScale = ((zoom - 11.0) / 4.0).clamp(0.0, 1.0);
+
+          return GestureDetector(
+            onTap: onTap,
+            // Aplikujeme zmenšení na celý bod
+            child: Transform.scale(
+              scale: myScale,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFAED41),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.black, width: 2),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        }
       ),
     );
   }
 
-  static Marker buildDokoncenaBublinaMarker(BodMise point, VoidCallback onTap) {
+ static Marker buildDokoncenaBublinaMarker(BodMise point, VoidCallback onTap) {
     return Marker(
       point: LatLng(point.lat, point.lon),
-      width: 240,
-      height: 150,
+      width: 300,
+      height: 300,
       alignment: Alignment.center,
       rotate: true,
-      child: Transform.translate(
-        offset: const Offset(0, -100), // <--- ZÁPORNÁ HODNOTA = POSUN NAHORU NAD BOD
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: DokoncenaMiseBublina(
-            miseData: dataMise,
-            pocetBodu: trasaMise.length,
-            onTap: onTap,
-          ),
-        ),
+      child: Builder(
+        builder: (context) {
+          final zoom = MapCamera.of(context).zoom;
+
+          if (zoom < 12.0) {
+            return const SizedBox.shrink();
+          }
+
+          double myScale = ((zoom - 12.0) / 4.0).clamp(0.0, 1.0);
+
+          return Transform.scale(
+            scale: myScale,
+            alignment: Alignment.center,
+            child: Align(
+              alignment: Alignment.center,
+              child: FractionalTranslation(
+                translation: const Offset(0, -0.5),
+                child: DokoncenaMiseBublina(
+                  miseData: dataMise,
+                  pocetBodu: trasaMise.length,
+                  onTap: onTap,
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
