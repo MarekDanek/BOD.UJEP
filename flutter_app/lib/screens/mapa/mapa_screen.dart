@@ -18,6 +18,7 @@ import '../../data/mise_data.dart';
 import '../../widgets/map_zoom_buttons.dart';
 import '../../widgets/audio_player.dart';
 import '../../widgets/archiv_mise_popup.dart';
+import '../../widgets/zamek_bodu_button.dart';
 
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
@@ -93,7 +94,26 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
     ];
   }
-
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Ukázka Zámku'),
+      ),
+      body: Center(
+        child: LockButton(
+          initialLocked: true, // Začne jako zamčený
+          onChanged: (bool _jeBodZamknuty) {
+            // Tady se provede akce po kliknutí
+            if (_jeBodZamknuty) {
+              print('Zámek je ZAMČENÝ (vrátilo to true)');
+            } else {
+              print('Zámek je ODEMČENÝ (vrátilo to false)');
+            }
+          },
+        ),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     final bool bodJeBlizko = c.userLatLng != null && VzdalenostBodu.jeUBodu(

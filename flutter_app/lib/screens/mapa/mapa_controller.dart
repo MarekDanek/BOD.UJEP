@@ -251,8 +251,9 @@ class MapaController {
       posunNaDalsiBod();
     }
   }
-
+  void ben
   void onMarkerTap() {
+    if (!jeUBodu || _jeBodZamknuty){ return}
     if (miseDokoncena) {
       zmenStav(() { stavHry = 3; aktualniBod = trasaMise.length; });
       vypocitejHistorickouTrasu();
