@@ -11,6 +11,7 @@ import '../../data/mise_data.dart';
 import '../../widgets/bonus_popup.dart';
 import '../../widgets/konec_mise_popup.dart';
 import '../../widgets/slide_bonus.dart';
+import 'mapa_screen.dart';
 
 class MapaController {
   final VoidCallback notifyListeners;
@@ -251,9 +252,14 @@ class MapaController {
       posunNaDalsiBod();
     }
   }
-  void ben
+
+
+ 
+
+  
   void onMarkerTap() {
-    if (!jeUBodu || _jeBodZamknuty){ return}
+    
+    //if (!mapa_screen.bodJeBlizko || _jeBodZamknuty){ return}
     if (miseDokoncena) {
       zmenStav(() { stavHry = 3; aktualniBod = trasaMise.length; });
       vypocitejHistorickouTrasu();

@@ -94,26 +94,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
     ];
   }
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ukázka Zámku'),
-      ),
-      body: Center(
-        child: LockButton(
-          initialLocked: true, // Začne jako zamčený
-          onChanged: (bool _jeBodZamknuty) {
-            // Tady se provede akce po kliknutí
-            if (_jeBodZamknuty) {
-              print('Zámek je ZAMČENÝ (vrátilo to true)');
-            } else {
-              print('Zámek je ODEMČENÝ (vrátilo to false)');
-            }
-          },
-        ),
-      ),
-    );
-  }
+  
   @override
   Widget build(BuildContext context) {
     final bool bodJeBlizko = c.userLatLng != null && VzdalenostBodu.jeUBodu(
@@ -156,7 +137,9 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
               MarkerLayer(markers: _buildMarkers(bodJeBlizko)),
             ],
           ),
-
+          LockButton(
+            onChanged: (bool jeBodZamknuty) { },
+          ),
           if (c.locationError != null) GpsErrorPanel(errorText: c.locationError!, onRetry: c.startLocationTracking),
           Positioned(top: 20, right: 20, child: MapZoomButtons(mapController: c.mapController)),
 

@@ -17,30 +17,30 @@ class LockButton extends StatefulWidget {
 }
 
 class _LockButtonState extends State<LockButton> {
-  late bool __jeBodZamknuty;
+  late bool jeBodZamknuty;
 
   @override
   void initState() {
     super.initState();
     // Nastavení výchozího stavu při inicializaci
-    _jeBodZamknuty = widget.initialLocked;
+    jeBodZamknuty = widget.initialLocked;
   }
 
   void _toggleLock() {
     setState(() {
-      _jeBodZamknuty = !_jeBodZamknuty // Přepnutí stavu
+      jeBodZamknuty = !jeBodZamknuty; // Přepnutí stavu
     });
     // Zavolání funkce a předání nového stavu (true = zamčeno, false = odemčeno)
-    widget.onChanged(_jeBodZamknuty);
+    widget.onChanged(jeBodZamknuty);
   }
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       iconSize: 48.0, // Velikost ikony si můžeš upravit
-      color: _jeBodZamknuty ? Colors.red : Colors.green, // Změna barvy podle stavu
+      color: jeBodZamknuty ? Colors.red : Colors.green, // Změna barvy podle stavu
       icon: Icon(
-        _jeBodZamknuty ? Icons.lock : Icons.lock_open,
+        jeBodZamknuty ? Icons.lock : Icons.lock_open,
       ),
       onPressed: _toggleLock,
     );
