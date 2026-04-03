@@ -5,6 +5,7 @@ class LockButton extends StatefulWidget {
   final ValueChanged<bool> onChanged;
   // Výchozí stav zámku (volitelný, standardně nastaven na zamčeno)
   final bool initialLocked;
+  
 
   const LockButton({
     Key? key,

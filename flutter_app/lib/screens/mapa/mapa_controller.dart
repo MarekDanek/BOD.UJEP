@@ -11,7 +11,9 @@ import '../../data/mise_data.dart';
 import '../../widgets/bonus_popup.dart';
 import '../../widgets/konec_mise_popup.dart';
 import '../../widgets/slide_bonus.dart';
-import 'mapa_screen.dart';
+import '../../utils/vzdalenost_bodu.dart';
+
+
 
 class MapaController {
   final VoidCallback notifyListeners;
@@ -19,6 +21,7 @@ class MapaController {
   final BuildContext context;
   final bool Function() isMounted;
 
+  
   int stavHry = 0;
   int aktualniBod = 1;
   List<LatLng> trasaPoChodniku = [];
@@ -256,10 +259,11 @@ class MapaController {
 
  
 
-  
+  bool jeBodZamknuty = false;
   void onMarkerTap() {
-    
-    //if (!mapa_screen.bodJeBlizko || _jeBodZamknuty){ return}
+        final bool bodJeBlizko = userLatLng != null && VzdalenostBodu.jeUBodu(
+        userLat: userLatLng!.latitude, userLon: userLatLng!.longitude, cilovyBod: trasaMise[aktualniBod-1], perimetrMetry: 28);
+    if (!bodJeBlizko &&  jeBodZamknuty){ return;}
     if (miseDokoncena) {
       zmenStav(() { stavHry = 3; aktualniBod = trasaMise.length; });
       vypocitejHistorickouTrasu();

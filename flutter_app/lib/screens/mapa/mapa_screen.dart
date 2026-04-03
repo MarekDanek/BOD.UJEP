@@ -94,7 +94,6 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
     ];
   }
-  
   @override
   Widget build(BuildContext context) {
     final bool bodJeBlizko = c.userLatLng != null && VzdalenostBodu.jeUBodu(
@@ -138,7 +137,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             ],
           ),
           LockButton(
-            onChanged: (bool jeBodZamknuty) { },
+            onChanged: (bool jeBodZamknuty) { c.jeBodZamknuty =jeBodZamknuty;},
           ),
           if (c.locationError != null) GpsErrorPanel(errorText: c.locationError!, onRetry: c.startLocationTracking),
           Positioned(top: 20, right: 20, child: MapZoomButtons(mapController: c.mapController)),
