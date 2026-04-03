@@ -91,9 +91,9 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             else
               MarkerBuilder.buildPassedPointCircleMarker(trasaMise[i]),
 
-
     ];
   }
+
   @override
   Widget build(BuildContext context) {
     final bool bodJeBlizko = c.userLatLng != null && VzdalenostBodu.jeUBodu(
@@ -136,9 +136,26 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
               MarkerLayer(markers: _buildMarkers(bodJeBlizko)),
             ],
           ),
-          LockButton(
-            onChanged: (bool jeBodZamknuty) { c.jeBodZamknuty =jeBodZamknuty;},
+
+          Positioned(
+            top: 80,
+            left : 15,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: const [
+                  BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+                ],
+              ),
+              child: LockButton(
+                onChanged: (bool jeBodZamknuty) {
+                  c.jeBodZamknuty = jeBodZamknuty;
+                },
+              ),
+            ),
           ),
+
           if (c.locationError != null) GpsErrorPanel(errorText: c.locationError!, onRetry: c.startLocationTracking),
           Positioned(top: 20, right: 20, child: MapZoomButtons(mapController: c.mapController)),
 
@@ -168,24 +185,24 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
           if (c.stavHry == 2) PanelDorazil(bodData: trasaMise[c.aktualniBod - 1], aktualniBod: c.aktualniBod, onOtevrit: () => DialogManager.ukazPribehPopup(context: context, historieBodu: trasaMise.sublist(0, c.aktualniBod), miseData: dataMise, onPokracovat: c.onPribehPokracovat)),
 
           if (c.stavHry == 3) ...[
-                  DraggableScrollableSheet(
-                    initialChildSize: 0.35,
-                    minChildSize: 0.12,
-                    maxChildSize: 0.45,
-                    snap: true,
-                    builder: (BuildContext context, ScrollController scrollController) {
-                      return ArchivMisePopup(
-                        miseData: dataMise,
-                        pocetBodu: trasaMise.length,
-                        scrollController: scrollController,
-                        odehranyCas: c.getFormattedTime(),
-                        uslaVzdalenost: c.getFormattedDistance(),
-                      );
-                    },
-                  ),
-                ],
-              ],
+            DraggableScrollableSheet(
+              initialChildSize: 0.35,
+              minChildSize: 0.12,
+              maxChildSize: 0.45,
+              snap: true,
+              builder: (BuildContext context, ScrollController scrollController) {
+                return ArchivMisePopup(
+                  miseData: dataMise,
+                  pocetBodu: trasaMise.length,
+                  scrollController: scrollController,
+                  odehranyCas: c.getFormattedTime(),
+                  uslaVzdalenost: c.getFormattedDistance(),
+                );
+              },
             ),
-          );
-        }
-      }
+          ],
+        ],
+      ),
+    );
+  }
+}
