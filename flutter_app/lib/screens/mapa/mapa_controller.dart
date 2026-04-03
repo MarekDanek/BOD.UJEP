@@ -41,6 +41,8 @@ class MapaController {
   String? locationError;
   bool followUser = true;
 
+  bool jeBodZamknuty = false;
+
   late final AnimationController radarController;
   late final Animation<double> radarAnimation;
 
@@ -259,7 +261,7 @@ class MapaController {
 
  
 
-  bool jeBodZamknuty = false;
+  
   void onMarkerTap() {
         final bool bodJeBlizko = userLatLng != null && VzdalenostBodu.jeUBodu(
         userLat: userLatLng!.latitude, userLon: userLatLng!.longitude, cilovyBod: trasaMise[aktualniBod-1], perimetrMetry: 28);
