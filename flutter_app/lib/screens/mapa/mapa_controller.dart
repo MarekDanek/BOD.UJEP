@@ -41,7 +41,7 @@ class MapaController {
   String? locationError;
   bool followUser = true;
 
-  bool jeBodZamknuty = false;
+  bool jeBodZamknuty = true;
 
   late final AnimationController radarController;
   late final Animation<double> radarAnimation;
