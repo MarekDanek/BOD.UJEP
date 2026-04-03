@@ -97,7 +97,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final bool bodJeBlizko = c.userLatLng != null && VzdalenostBodu.jeUBodu(
-        userLat: c.userLatLng!.latitude, userLon: c.userLatLng!.longitude, cilovyBod: trasaMise[c.aktualniBod-1], perimetrMetry: 28);
+        userLat: c.userLatLng!.latitude, userLon: c.userLatLng!.longitude, cilovyBod: trasaMise[c.aktualniBod-1], perimetrMetry: 10);
 
     return Scaffold(
       appBar: _buildAppBar(),

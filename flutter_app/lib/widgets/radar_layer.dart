@@ -17,7 +17,7 @@ class RadarLayer extends StatelessWidget {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, _) {
-        final radius = 20.0 + (animation.value * 6);
+        final radius = 7.14 + (animation.value * 6);
         return CircleLayer(
           circles: [
             CircleMarker(
