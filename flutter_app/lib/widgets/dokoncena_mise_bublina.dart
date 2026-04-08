@@ -18,10 +18,9 @@ class DokoncenaMiseBublina extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        // KLÍČOVÁ ZMĚNA: Nahrazeno pevné width: 220 flexibilním omezením
         constraints: const BoxConstraints(
-          minWidth: 200,
-          maxWidth: 300, // Dovolí bublině být širší, aby se text lépe vešel
+          minWidth: 150,
+          maxWidth: 210,
         ),
         padding: const EdgeInsets.only(left: 14, right: 14, top: 12, bottom: 12), // Trochu zvětšený spodní padding
         decoration: BoxDecoration(

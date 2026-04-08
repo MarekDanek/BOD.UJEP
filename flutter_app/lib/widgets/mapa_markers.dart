@@ -4,7 +4,9 @@ import 'package:latlong2/latlong.dart';
 import '../data/mise_data.dart';
 import 'dokoncena_mise_bublina.dart';
 
+
 class MarkerBuilder {
+
   // --- START MARKER ---
   static Marker buildStartMarker(BodMise point, VoidCallback onTap) {
     return Marker(
@@ -14,6 +16,7 @@ class MarkerBuilder {
       rotate: true,
       child: Builder(
         builder: (context) {
+
           final zoom = MapCamera.of(context).zoom;
 
 
