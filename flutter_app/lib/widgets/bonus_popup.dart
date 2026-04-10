@@ -70,7 +70,6 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
 
                       // Nahrazeno pevným SizedBoxem místo Expanded
                       const SizedBox(height: 20),
-
                       if (pageData.obrazek != null)
                         pageData.zaoblitObrazek == true
                             ? ClipRRect(
@@ -110,6 +109,7 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
                             style: const TextStyle(fontSize: 16, height: 1.2, fontWeight: FontWeight.bold),
                           ),
                         ),
+                        
                       ],
                     ],
                   ),
@@ -163,7 +163,7 @@ class _BonusPopupMultipageState extends State<BonusPopupMultipage> {
           // Tečky (indikátor stránek)
           if (pages.length > 1)
             Positioned(
-              bottom: 30,
+              bottom: 150,
               left: 0,
               right: 0,
               child: Row(
