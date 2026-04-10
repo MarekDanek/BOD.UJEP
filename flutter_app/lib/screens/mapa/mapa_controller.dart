@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_compass/flutter_compass.dart'; // PŘIDÁNO: Kompas
 
 import '../../utils/logika_cesty.dart';
 import '../../utils/dialog_manager.dart';
@@ -13,14 +14,11 @@ import '../../widgets/konec_mise_popup.dart';
 import '../../widgets/slide_bonus.dart';
 import '../../utils/vzdalenost_bodu.dart';
 
-
-
 class MapaController {
   final VoidCallback notifyListeners;
   final TickerProvider vsync;
   final BuildContext context;
   final bool Function() isMounted;
-
 
   int stavHry = 0;
   int aktualniBod = 1;
@@ -37,7 +35,9 @@ class MapaController {
 
   final MapController mapController = MapController();
   StreamSubscription? _positionSub;
+  StreamSubscription? _compassSub; // PŘIDÁNO: Odběr kompasu
   LatLng? userLatLng;
+  double userHeading = 0.0; // PŘIDÁNO: Proměnná pro rotaci šipky
   String? locationError;
   bool followUser = true;
 
@@ -60,16 +60,29 @@ class MapaController {
     radarController = AnimationController(vsync: vsync, duration: const Duration(seconds: 2))..repeat(reverse: true);
     radarAnimation = CurvedAnimation(parent: radarController, curve: Curves.easeInOut);
     startLocationTracking();
+    startCompassTracking(); // PŘIDÁNO: Spuštění kompasu
   }
 
   void dispose() {
     _positionSub?.cancel();
+    _compassSub?.cancel(); // PŘIDÁNO: Zrušení kompasu
     radarController.dispose();
   }
 
   void zmenStav(VoidCallback akce) {
     akce();
     notifyListeners();
+  }
+
+  // PŘIDÁNO: Metoda pro sledování kompasu (otáčení šipky i na místě)
+  void startCompassTracking() {
+    _compassSub = FlutterCompass.events?.listen((event) {
+      if (event.heading != null && isMounted()) {
+        zmenStav(() {
+          userHeading = event.heading!;
+        });
+      }
+    });
   }
 
   Future<void> loadMiseState() async {

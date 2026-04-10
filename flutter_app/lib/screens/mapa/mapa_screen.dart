@@ -72,7 +72,9 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
   List<Marker> _buildMarkers(bool bodJeBlizko) {
     return [
-      if (c.userLatLng != null) MarkerBuilder.buildUserMarker(c.userLatLng!),
+      // PŘIDÁNO c.userHeading - posíláme směr kompasu do markeru!
+      if (c.userLatLng != null)
+        MarkerBuilder.buildUserMarker(c.userLatLng!, c.userHeading),
 
       if (c.stavHry == 0) MarkerBuilder.buildStartMarker(trasaMise.first, c.onMarkerTap),
 
@@ -156,7 +158,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             ),
           ),
 
-          //TLAČÍTKO PRO RESET ROTACE (KOMPAS)
+          // TLAČÍTKO PRO RESET ROTACE (KOMPAS)
           Positioned(
             top: 150,
             left: 20,

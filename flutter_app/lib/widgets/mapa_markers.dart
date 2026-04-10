@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../data/mise_data.dart';
 import 'dokoncena_mise_bublina.dart';
+import 'dart:math' as math;
 
 
 class MarkerBuilder {
@@ -152,20 +153,57 @@ class MarkerBuilder {
     );
   }
 
-  // --- UŽIVATELSKÝ MARKER (LOKACE) ---
-  static Marker buildUserMarker(LatLng point) {
+// --- UŽIVATELSKÝ MARKER (PLYNULÁ ŠIPKA) ---
+  static Marker buildUserMarker(LatLng point, double heading) {
+    // Převod stupňů na radiány pro Transform.rotate
+    final double rotationRadians = heading * (math.pi / 180);
+
     return Marker(
       point: point,
-      width: 24,
-      height: 24,
-      rotate: true,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.blue,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 3),
-          boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
-        ),
+      width: 45,
+      height: 45,
+      rotate: false, // Rotaci děláme animovaně uvnitř
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(begin: 0, end: rotationRadians),
+        duration: const Duration(milliseconds: 300), // Rychlost plynulého dotočení
+        curve: Curves.decelerate,
+        builder: (context, value, child) {
+          return Transform.rotate(
+            angle: value,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Stín (záře) pod šipkou
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withValues(alpha: 0.5),
+                        blurRadius: 10,
+                        spreadRadius: 5,
+                      ),
+                    ],
+                  ),
+                ),
+                // Hlavní modrá šipka
+                const Icon(
+                  Icons.navigation,
+                  size: 35,
+                  color: Colors.blue,
+                ),
+                // Bílý obrys šipky pro lepší viditelnost na mapě
+                const Icon(
+                  Icons.navigation_outlined,
+                  size: 35,
+                  color: Colors.white,
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
