@@ -21,7 +21,7 @@ class MapaController {
   final BuildContext context;
   final bool Function() isMounted;
 
-  
+
   int stavHry = 0;
   int aktualniBod = 1;
   List<LatLng> trasaPoChodniku = [];
@@ -258,10 +258,6 @@ class MapaController {
     }
   }
 
-
- 
-
-  
   void onMarkerTap() {
         final bool bodJeBlizko = userLatLng != null && VzdalenostBodu.jeUBodu(
         userLat: userLatLng!.latitude, userLon: userLatLng!.longitude, cilovyBod: trasaMise[aktualniBod-1], perimetrMetry: 28);
@@ -288,5 +284,10 @@ class MapaController {
       return '${(celkovaVzdalenostMetry / 1000).toStringAsFixed(1)} km';
     }
     return '${celkovaVzdalenostMetry.toInt()} m';
+  }
+
+  void resetSmeru() {
+    mapController.rotate(0);
+    notifyListeners();
   }
 }

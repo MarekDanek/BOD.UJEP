@@ -82,7 +82,6 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
       if (c.stavHry > 0)
         for (int i = 0; i < trasaMise.length; i++)
           if (c.stavHry == 3)
-            // --- ZMĚNA ZDE: Využijeme kulatý marker pro archivní body ---
             MarkerBuilder.buildPassedPointCircleMarkerWithOnTap(trasaMise[i], () => DialogManager.ukazPribehPopup(
                 context: context, historieBodu: trasaMise.sublist(0, i + 1), miseData: dataMise, onPokracovat: () {}))
           else if (i < c.aktualniBod)
@@ -137,6 +136,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             ],
           ),
 
+          // TLAČÍTKO ZÁMKU
           Positioned(
             top: 80,
             left : 15,
@@ -152,6 +152,25 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                 onChanged: (bool jeBodZamknuty) {
                   c.jeBodZamknuty = jeBodZamknuty;
                 },
+              ),
+            ),
+          ),
+
+          //TLAČÍTKO PRO RESET ROTACE (KOMPAS)
+          Positioned(
+            top: 150,
+            left: 20,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: const [
+                  BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
+                ],
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.explore, color: Colors.yellow),
+                onPressed: () => c.resetSmeru(),
               ),
             ),
           ),
