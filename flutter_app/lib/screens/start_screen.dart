@@ -51,7 +51,6 @@ class StartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-
       appBar: MyAppBar(
         levaIkona: Icons.map_outlined,
         barvaPozadi: Colors.transparent,
@@ -71,45 +70,60 @@ class StartScreen extends StatelessWidget {
         },
       ),
 
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFCFCE4),
-              Color(0xFFAEFFA4)
-            ],
+      // Celé tělo je teď klikatelné
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque, // Zajistí klikatelnost i na prázdném pozadí
+        onTap: () {
+          // Stejná logika jako u ikony v AppBaru
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const MapaScreen()),
+            );
+          }
+        },
+        child: Container(
+          // Zabereme maximální možný prostor
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFFFCFCE4),
+                Color(0xFFAEFFA4)
+              ],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 40),
-
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0),
-                child: Text(
-                  'Mapa',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+          child: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 40),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    'Mapa',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
-              ),
-
-              const Spacer(),
-
-              Center(
-                child: Image.asset(
-                  'assets/trpaslik.png',
-                  fit: BoxFit.contain,
+                const Spacer(),
+                Center(
+                  child: Image.asset(
+                    'assets/trpaslik.png',
+                    fit: BoxFit.contain,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
