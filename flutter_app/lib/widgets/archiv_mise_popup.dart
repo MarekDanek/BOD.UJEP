@@ -36,7 +36,7 @@ class ArchivMisePopup extends StatelessWidget {
 
       child: ListView(
         controller: scrollController,
-        padding: const EdgeInsets.only(left: 24, right: 24, top: 12, bottom: 40),
+        padding: const EdgeInsets.only(left: 24, right: 24, top: 10, bottom: 10),
         children: [
           Center(
             child: Container(
@@ -112,6 +112,7 @@ class ArchivMisePopup extends StatelessWidget {
             'Prošel jsem kampus. Menzu. Prostranství. Bankomat. Bufet. Malé zastávky velkého dne. Hudba dohrála. Cigareta pomalu dohořívá.\nA já jsem konečně dorazil tam, kam jsem měl namířeno od začátku. Do práce.',
             style: TextStyle(fontSize: 16, color: Colors.black, height: 1.3),
           ),
+          const SizedBox(height: 40),
         ],
       ),
     );

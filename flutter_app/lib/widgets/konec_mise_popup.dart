@@ -199,7 +199,7 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
               child: const Text('Uzavřít', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
             ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 80),
         ],
       ),
     );

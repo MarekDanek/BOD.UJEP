@@ -36,7 +36,7 @@ class MisePopup extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 10), // Trochu zmenšená mezera kvůli křížku
+            const SizedBox(height: 30), // Trochu zmenšená mezera kvůli křížku
             Padding(
               padding: const EdgeInsets.only(left: 24.0, right: 16.0), // Upravený padding pro křížek
               child: Row(
@@ -143,7 +143,7 @@ class MisePopup extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 80),
           ],
         ),
       ),

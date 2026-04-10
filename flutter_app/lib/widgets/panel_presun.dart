@@ -14,7 +14,7 @@ class PanelPresun extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 40,
+      bottom: 50,
       left: 20,
       right: 20,
       child: Container(
@@ -34,6 +34,7 @@ class PanelPresun extends StatelessWidget {
                   Text(bodData.nazevBodu, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black)),
                   const SizedBox(height: 5),
                   Text('Přesuň se na BOD$aktualniBod.\nOtevře se ti pokračování příběhu.', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black)),
+                  
                 ],
               ),
             ),
@@ -46,6 +47,7 @@ class PanelPresun extends StatelessWidget {
           ],
         ),
       ),
+    
     );
   }
 }
