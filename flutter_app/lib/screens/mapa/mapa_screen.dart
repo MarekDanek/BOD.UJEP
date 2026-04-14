@@ -202,7 +202,20 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
               child: MiniAudioPlayer(nazevSkladby: c.aktivniBonus!.bonusoveStranky!.first.text, audioPath: c.aktivniBonus!.bonusAudioPath!, onZavrit: () => c.zmenStav(() => c.skrytyPrehravac = true)),
             ),
 
-          if (c.stavHry == 1) PanelPresun(bodData: trasaMise[c.aktualniBod - 1], aktualniBod: c.aktualniBod),
+          if (c.stavHry == 1)
+            DraggableScrollableSheet(
+              initialChildSize: 0.22,
+              minChildSize: 0.22,
+              maxChildSize: 0.5,
+              snap: true,
+              builder: (BuildContext context, ScrollController scrollController) {
+                return PanelPresun(
+                  bodData: trasaMise[c.aktualniBod - 1],
+                  aktualniBod: c.aktualniBod,
+                  scrollController: scrollController,
+                );
+              },
+            ),
           if (c.stavHry == 2) PanelDorazil(bodData: trasaMise[c.aktualniBod - 1], aktualniBod: c.aktualniBod, onOtevrit: () => DialogManager.ukazPribehPopup(context: context, historieBodu: trasaMise.sublist(0, c.aktualniBod), miseData: dataMise, onPokracovat: c.onPribehPokracovat)),
 
           if (c.stavHry == 3) ...[

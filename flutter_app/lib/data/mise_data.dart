@@ -51,6 +51,7 @@ class ObrazekMise{
 class BodMise {
   final int id;
   final String nazevBodu;
+  final String tipNaCestu;
   final String podnadpis;
   final String textCast1;
   final String obrazekCesta;
@@ -65,6 +66,7 @@ class BodMise {
   BodMise({
     required this.id,
     required this.nazevBodu,
+    required this.tipNaCestu,
     required this.podnadpis,
     required this.textCast1,
     required this.obrazekCesta,
@@ -102,6 +104,7 @@ final List<BodMise> trasaMise = [
   BodMise(
     id: 1,
     nazevBodu: 'Menza',
+    tipNaCestu: 'Drz se hlavni cesty kolem budov a sleduj znaceni kampusu.',
     podnadpis: 'Případ předem ztraceného překvapení',
     textCast1: 'Vešel jsem do menzy.\n\nPodíval jsem se na menu.',
     obrazekCesta: 'assets/BOD4_2.png',
@@ -117,6 +120,7 @@ final List<BodMise> trasaMise = [
   BodMise(
     id: 2,
     nazevBodu: 'Existencionální pauza',
+    tipNaCestu: 'Projdi otevrenym prostorem mezi budovami a drzte smer podle mapy.',
     podnadpis: 'Soundtrack v předjaří',
     textCast1: 'Velké otevřené prostranství mezi budovami.\n\nVítr tam fouká tak, jako by chtěl lidem připomenout, že všechno jednou skončí.\n\nVytáhl jsem telefon.\n\nPustil jsem si jednu starou indie věc. Kytara zněla smutně.',
     obrazekCesta: 'assets/BOD2_1.png',
@@ -139,6 +143,7 @@ final List<BodMise> trasaMise = [
   BodMise(
     id: 3,
     nazevBodu: 'Bankomat',
+    tipNaCestu: 'Pokracuj po chodniku smerem k vyssi budove a drz se hlavni trasy.',
     podnadpis: 'Případ mizících peněz',
     textCast1: 'Díval se na mě z výšky.\n\nMoudře.\n\nPřísně.\n\nVytáhl jsem kartu.\n\nBankomat chvíli přemýšlel, jestli si to zasloužím, ale nakonec mi vydal pár bankovek.',
     obrazekCesta: 'assets/BOD3_2.png',
@@ -161,6 +166,7 @@ final List<BodMise> trasaMise = [
   BodMise(
     id: 4,
     nazevBodu: 'Bufet — Malé radosti',
+    tipNaCestu: 'Udrzuj tempo a pokracuj ke sklenene casti budovy s obcerstvenim.',
     podnadpis: 'Důležitý je základ...bramborový?',
     textCast1: 'Bufet byl plný světla a skla.\n\nZa vitrínou ležely chlebíčky.\nDokonalé.\nTiché.\nNeodsuzující.',
     obrazekCesta: 'assets/BOD4_2.png',
@@ -180,6 +186,7 @@ final List<BodMise> trasaMise = [
   BodMise(
     id: 5,
     nazevBodu: 'FUD — Kouř',
+    tipNaCestu: 'Posledni usek vede kolem budov FUD, drz se chodniku az k cili.',
     podnadpis: 'Poslední cigareta?',
     textCast1: 'Došel jsem před Fakulta umění a designu UJEP.\n\nVytáhl jsem cigaretu.\n\nZapálil ji.\n\nPrvní potáhnutí bylo dobré.\n\nDruhé ještě lepší.\n\nKampus šuměl kolem mě. Někde někdo mluvil o projektech, někdo o designu. Vyfoukl jsem kouř do studeného vzduchu.\n\nTeprve teď jsem byl připravený začít pracovat.',
     obrazekCesta: 'assets/BOD5_1.png',
