@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/mise_data.dart';
+import 'point_images.dart';
 
 class PointPopup extends StatefulWidget {
   final List<BodMise> historieBodu;
@@ -92,7 +93,8 @@ class _PointPopupState extends State<PointPopup> {
                 itemCount: widget.historieBodu.length,
                 itemBuilder: (context, index) {
                   final bodData = widget.historieBodu[index];
-
+                  final imagePaths = (bodData.obrazkyMise ?? []).map((e) => e.obrazek).whereType<String>().where((path) => path.isNotEmpty).toList();
+                  final imagesToShow = imagePaths.isNotEmpty ? imagePaths : [bodData.obrazekCesta];
                   return SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -151,18 +153,13 @@ class _PointPopupState extends State<PointPopup> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        Image.asset(
-                          bodData.obrazekCesta,
-                          width: double.infinity,
-                          height: 300,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              width: double.infinity, height: 200, color: Colors.black12,
-                              child: const Center(child: Icon(Icons.image, size: 50, color: Colors.black54)),
-                            );
-                          },
+                        PointImagesCarousel(
+                        imagePaths: imagesToShow,
+                        height: 300,
                         ),
+                        
+                            
+                       
                         const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 24.0),

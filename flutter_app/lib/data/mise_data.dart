@@ -41,7 +41,13 @@ class BonusovaStranka {
     this.zaoblitObrazek,
   });
 }
+class ObrazekMise{
+  final String? obrazek;
 
+  ObrazekMise({
+    this.obrazek
+  });
+}
 class BodMise {
   final int id;
   final String nazevBodu;
@@ -54,6 +60,7 @@ class BodMise {
 
   final String? bonusAudioPath;
   final List<BonusovaStranka>? bonusoveStranky;
+  final List<ObrazekMise>? obrazkyMise;
 
   BodMise({
     required this.id,
@@ -66,6 +73,7 @@ class BodMise {
     required this.lon,
     this.bonusAudioPath,
     this.bonusoveStranky,
+    this.obrazkyMise
   });
 }
 
@@ -100,6 +108,11 @@ final List<BodMise> trasaMise = [
     textCast2: 'Už jsem ho znal. Musel jsem si oběd objednat včera. Žádné překvapení. Žádná záhada.\n\nJen tichá vůně rozvařených těstovin, která se vznášela ve vzduchu jako špatná životní rozhodnutí.\n\nChvíli jsem tam stál.\n\nPak jsem šel dál.',
     lat: 50.6647478,
     lon: 14.0258906,
+    obrazkyMise: [
+        ObrazekMise(obrazek: 'assets/BOD4_2.png'),
+        ObrazekMise(obrazek: 'assets/BOD4_2.png'),
+    ]
+    
   ),
   BodMise(
     id: 2,
@@ -185,14 +198,3 @@ final List<BodMise> trasaMise = [
   ),
 ];
 
-// Testovací bod
-final testBod = BodMise(
-  id: 6,
-  nazevBodu: 'Testovací-BoD',
-  podnadpis: 'TEST',
-  textCast1: 'Test',
-  obrazekCesta: 'Test',
-  textCast2: 'Gratulujeme,\ndokončil jsi misi!',
-  lat: 50.69034641800818,
-  lon: 14.094063052036377,
-);
