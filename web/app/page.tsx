@@ -1,7 +1,9 @@
-export const dynamic = 'force-dynamic';
+import MapTrasyWrapper from './MapTrasyWrapper';
 
 import { prisma } from '../lib/prisma'
 import { pridatVrtsvu } from './actions'
+
+
 
 export default async function AdminDashboard() {
   const vrstvy = await prisma.vrstva.findMany({
@@ -69,6 +71,11 @@ export default async function AdminDashboard() {
                   <input type="color" name="barva" defaultValue="#FAED41"
                     className="w-full h-[50px] p-1 bg-white/70 border border-gray-300 rounded-xl cursor-pointer shadow-sm" />
                 </div>
+              </div>
+
+            <div className="col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Nakreslit trasu mise</label>
+                <MapTrasyWrapper />
               </div>
 
               <button type="submit"
