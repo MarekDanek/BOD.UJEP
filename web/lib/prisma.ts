@@ -1,15 +1,10 @@
-import { PrismaClient } from '@prisma/client';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { PrismaClient } from '@prisma/client'
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-
-// V Prisma 7 musíš explicitně vytvořit adaptér pro spojení s databází
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || 'file:./prisma/dev.db',
-});
+// Tohle zabrání Next.js, aby při každém uložení (F5) vytvářel nová a prázdná připojení
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
 export const prisma =
   globalForPrisma.prisma ||
-  new PrismaClient({ adapter }); // Tady adaptérem "nakrmíme" Prismu
+  new PrismaClient() // Úplně čisté volání bez adaptérů!
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma

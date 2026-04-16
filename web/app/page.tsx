@@ -14,7 +14,7 @@ export default async function AdminDashboard() {
       }
     }
   }).catch((chyba : any) => {
-    console.error("🔥 CHYBA DATABÁZE V NEXT.JS:", chyba);
+    console.error(" CHYBA DATABÁZE V NEXT.JS:", chyba);
     return [];
   });
 
