@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { nahratSoubor } from './uploadActions';
 
-// Tento kousek kódu opravuje chybu Next.js, kdy se nenačítají špendlíky (ikony) mapy
+// Oprava ikon Leafletu
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -13,73 +14,179 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-export default function MapTrasy() {
-  // Zde si pamatuje všechny naklikané body
-  const [body, setBody] = useState<{ lat: number; lon: number }[]>([]);
+// Speciální ikona pro Hlavní bod mise (Hvězda/Zlatá)
+const hlavniBodIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
 
-  // Tato skrytá komponenta "poslouchá" na kliknutí myší do mapy
+type BodType = {
+  id: number;
+  lat: number;
+  lon: number;
+  nazev: string;
+  pribeh: string;
+  obrazkyGalerie: string[]; // Pole URL adres
+  audioUrl: string;
+  bonusObrazky: string[]; // Galerie pro bonusy
+};
+
+export default function MapTrasy() {
+  const [rezim, setRezim] = useState<'HLAVNI' | 'TRASE'>('TRASE');
+  const [hlavniBod, setHlavniBod] = useState<{ lat: number, lon: number } | null>(null);
+  const [body, setBody] = useState<BodType[]>([]);
+  const [vybranyBodId, setVybranyBodId] = useState<number | null>(null);
+  const [nahravam, setNahravam] = useState(false);
+
+  // Komponenta pro klikání do mapy
   const ZachytavaniKliknuti = () => {
     useMapEvents({
       click(e) {
-        // Při kliknutí přidáme nový bod do našeho seznamu
-        const noveBody = [...body, { lat: e.latlng.lat, lon: e.latlng.lng }];
-        setBody(noveBody);
+        if (rezim === 'HLAVNI') {
+          setHlavniBod({ lat: e.latlng.lat, lon: e.latlng.lng });
+        } else {
+          const novyId = Date.now();
+          const novyBod: BodType = {
+            id: novyId,
+            lat: e.latlng.lat,
+            lon: e.latlng.lng,
+            nazev: `Bod ${body.length + 1}`,
+            pribeh: '',
+            obrazkyGalerie: [],
+            audioUrl: '',
+            bonusObrazky: [],
+          };
+          setBody([...body, novyBod]);
+          setVybranyBodId(novyId);
+        }
       },
     });
     return null;
   };
 
-  return (
-    <div className="space-y-3">
-      {/* Rámeček s mapou */}
-      <div className="w-full h-[400px] rounded-xl overflow-hidden border border-gray-300 shadow-inner z-0 relative">
-        <MapContainer
-          center={[50.665, 14.026]} // Vycentrováno na Kampus UJEP
-          zoom={16}
-          scrollWheelZoom={true}
-          className="w-full h-full"
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; OpenStreetMap'
-          />
+  const vybranyBod = body.find((b) => b.id === vybranyBodId);
 
+  const upravitBod = (klic: keyof BodType, hodnota: any) => {
+    if (!vybranyBodId) return;
+    setBody(body.map((b) => (b.id === vybranyBodId ? { ...b, [klic]: hodnota } : b)));
+  };
+
+  // Hromadné nahrávání souborů
+  const handleMultipleUpload = async (e: React.ChangeEvent<HTMLInputElement>, typ: 'obrazkyGalerie' | 'bonusObrazky') => {
+    if (!e.target.files || e.target.files.length === 0 || !vybranyBodId) return;
+
+    setNahravam(true);
+    const noveUrl: string[] = [...(vybranyBod?.[typ] || [])];
+
+    for (const soubor of Array.from(e.target.files)) {
+      const formData = new FormData();
+      formData.append('soubor', soubor);
+      const vysledek = await nahratSoubor(formData);
+      if (vysledek.success && vysledek.url) {
+        noveUrl.push(vysledek.url);
+      }
+    }
+
+    upravitBod(typ, noveUrl);
+    setNahravam(false);
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* PŘEPÍNAČ REŽIMŮ */}
+      <div className="flex bg-gray-100 p-1 rounded-xl w-fit border border-gray-200 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setRezim('HLAVNI')}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${rezim === 'HLAVNI' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+        >
+          📍 Hlavní bod mise
+        </button>
+        <button
+          type="button"
+          onClick={() => setRezim('TRASE')}
+          className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${rezim === 'TRASE' ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+        >
+          🛤️ Zastávky trasy
+        </button>
+      </div>
+
+      {/* MAPA */}
+      <div className="w-full h-[450px] rounded-2xl overflow-hidden border border-gray-300 shadow-xl z-0 relative">
+        <MapContainer center={[50.665, 14.026]} zoom={15} className="w-full h-full">
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <ZachytavaniKliknuti />
 
-          {/* Vykreslení špendlíků pro každý bod */}
-          {body.map((bod, i) => (
-            <Marker key={i} position={[bod.lat, bod.lon]} />
+          {/* Vykreslení hlavního bodu */}
+          {hlavniBod && <Marker position={[hlavniBod.lat, hlavniBod.lon]} icon={hlavniBodIcon} />}
+
+          {/* Vykreslení trasy */}
+          {body.map((bod) => (
+            <Marker
+              key={bod.id}
+              position={[bod.lat, bod.lon]}
+              eventHandlers={{ click: () => { setRezim('TRASE'); setVybranyBodId(bod.id); } }}
+            />
           ))}
 
-          {/* Vykreslení modré čáry spojující body (musí být aspoň 2) */}
           {body.length > 1 && (
-            <Polyline positions={body.map((b) => [b.lat, b.lon])} color="#10b981" weight={4} />
+            <Polyline positions={body.map((b) => [b.lat, b.lon])} color="#10b981" weight={4} dashArray="5, 10" />
           )}
         </MapContainer>
       </div>
 
-      {/* Ovládací panel pod mapou */}
-      <div className="flex gap-4">
-        <button
-          type="button"
-          onClick={() => setBody(body.slice(0, -1))}
-          className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-colors"
-        >
-          Smazat poslední bod
-        </button>
-        <button
-          type="button"
-          onClick={() => setBody([])}
-          className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium transition-colors"
-        >
-          Vymazat vše
-        </button>
-      </div>
+      {/* EDITOR VYBRANÉHO BODU */}
+      {vybranyBod && (
+        <div className="bg-white p-6 rounded-2xl shadow-2xl border-2 border-emerald-500/20 animate-in fade-in slide-in-from-bottom-4">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-black text-gray-800">Editace: {vybranyBod.nazev}</h3>
+            <button type="button" onClick={() => setVybranyBodId(null)} className="text-gray-400 hover:text-gray-800">✕ Zavřít</button>
+          </div>
 
-      {/* Tady si ukážeme, jak vypadají vygenerovaná data (GeoJSON struktura) pro databázi */}
-      <div className="p-3 bg-gray-900 text-green-400 font-mono text-xs rounded-lg overflow-x-auto">
-        {body.length === 0 ? "Zatím žádná trasa. Klikni do mapy!" : JSON.stringify(body)}
-      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <input type="text" value={vybranyBod.nazev} onChange={(e) => upravitBod('nazev', e.target.value)}
+                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none font-bold" placeholder="Název zastávky" />
+              <textarea value={vybranyBod.pribeh} onChange={(e) => upravitBod('pribeh', e.target.value)} rows={4}
+                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Příběh tohoto místa..." />
+            </div>
+
+            <div className="space-y-4">
+              {/* GALERIE OBRÁZKŮ */}
+              <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                <label className="block text-xs font-black text-emerald-700 uppercase mb-2">📸 Galerie obrázků (i více)</label>
+                <input type="file" multiple accept="image/*" onChange={(e) => handleMultipleUpload(e, 'obrazkyGalerie')}
+                  className="w-full text-xs text-emerald-800 file:mr-2 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer" />
+                <div className="flex gap-2 mt-2 overflow-x-auto">
+                  {vybranyBod.obrazkyGalerie.map((img, i) => <div key={i} className="w-10 h-10 bg-gray-200 rounded-lg flex-shrink-0" title={img} />)}
+                </div>
+              </div>
+
+              {/* BONUSY */}
+              <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
+                <label className="block text-xs font-black text-amber-700 uppercase mb-2">🎁 Bonusový obsah (Audio + Foto)</label>
+                <div className="space-y-2">
+                   <input type="file" accept="audio/*" onChange={async (e) => {
+                     if (!e.target.files?.[0]) return;
+                     const fd = new FormData(); fd.append('soubor', e.target.files[0]);
+                     const res = await nahratSoubor(fd);
+                     if (res.success) upravitBod('audioUrl', res.url);
+                   }} className="text-xs w-full" />
+                   <input type="file" multiple accept="image/*" onChange={(e) => handleMultipleUpload(e, 'bonusObrazky')} className="text-xs w-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Skrytá data pro uložení */}
+      <input type="hidden" name="naklikaneBody" value={JSON.stringify(body)} />
+      <input type="hidden" name="hlavniBod" value={JSON.stringify(hlavniBod)} />
     </div>
   );
 }

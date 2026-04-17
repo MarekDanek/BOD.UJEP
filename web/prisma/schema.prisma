@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl"]
 }
 
@@ -7,12 +7,12 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
 model Vrstva {
   id        String   @id @default(cuid())
   nazev     String
   popis     String?
-  barva     String?  // Zatím volitelné
-  ikona     String?  // Zatím volitelné
+  barva     String?  @default("#FAED41") // Hlavní barva pro přebarvení UI v aplikaci
 
   mise      Mise[]
 
@@ -21,42 +21,54 @@ model Vrstva {
 }
 
 model Mise {
-  id           String   @id @default(cuid())
-  vrstvaId     String
-  vrstva       Vrstva   @relation(fields: [vrstvaId], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  vrstvaId      String
+  vrstva        Vrstva   @relation(fields: [vrstvaId], references: [id], onDelete: Cascade)
 
-  nazev        String
-  podnadpis    String
-  textCast1    String
-  obrazekCesta String
-  textCast2    String
-  pocetBodu    String
-  vzdalenost   String
-  obtiznost    String
-  cas          String
-  bonusy       String
-  typ          String
+  nazev         String
+  podnadpis     String
+  textCast1     String
+  obrazekCesta  String   // Hlavní obrázek mise
+  textCast2     String?
 
-  bodyMise     BodMise[]
+  // Statistiky
+  pocetBodu     String
+  vzdalenost    String
+  obtiznost     String
+  cas           String
+  bonusy        String
+  typ           String   // Např. "Zvuková", "Historická"
 
-  vytvoreno    DateTime  @default(now())
-  upraveno     DateTime  @updatedAt
+  // Souřadnice pro hlavní startovní bod/cíl na mapě
+  hlavniLat     Float?
+  hlavniLon     Float?
+
+  bodyMise      BodMise[]
+
+  vytvoreno     DateTime @default(now())
+  upraveno      DateTime @updatedAt
 }
 
 model BodMise {
-  id             String   @id @default(cuid())
-  miseId         String
-  mise           Mise     @relation(fields: [miseId], references: [id], onDelete: Cascade)
+  id              String   @id @default(cuid())
+  miseId          String
+  mise            Mise     @relation(fields: [miseId], references: [id], onDelete: Cascade)
 
-  poradi         Int      // Určuje pořadí bodu v trase (1, 2, 3...)
-  nazevBodu      String
-  podnadpis      String
-  textCast1      String
-  obrazekCesta   String
-  textCast2      String
-  lat            Float
-  lon            Float
-  bonusAudioPath String?
+  poradi          Int      // Pořadí v trase (1, 2, 3...)
+  nazevBodu       String
+  podnadpis       String?
+  textCast1       String
+  textCast2       String?
+
+  // Galerie obrázků (uloženo jako JSON string: ["cesta1", "cesta2"])
+  obrazkyGalerie  String?
+
+  lat             Float
+  lon             Float
+
+  // Bonusový obsah
+  bonusAudioPath  String?
+  bonusObrazky    String?  // Galerie pro bonusy (JSON string)
 
   bonusoveStranky BonusovaStranka[]
 
@@ -64,14 +76,14 @@ model BodMise {
 }
 
 model BonusovaStranka {
-  id             String   @id @default(cuid())
-  bodMiseId      String
-  bodMise        BodMise  @relation(fields: [bodMiseId], references: [id], onDelete: Cascade)
+  id              String   @id @default(cuid())
+  bodMiseId       String
+  bodMise         BodMise  @relation(fields: [bodMiseId], references: [id], onDelete: Cascade)
 
-  poradi         Int      // Určuje pořadí stránky v bonusovém popupu
-  obrazek        String?
-  podnadpis      String?
-  text           String
-  malyText       String?
-  zaoblitObrazek Boolean  @default(false)
+  poradi          Int
+  obrazek         String?
+  podnadpis       String?
+  text            String
+  malyText        String?
+  zaoblitObrazek  Boolean  @default(false)
 }

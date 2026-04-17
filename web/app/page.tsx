@@ -62,11 +62,6 @@ export default async function AdminDashboard() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Ikona (Emoji/Text)</label>
-                  <input type="text" name="ikona" placeholder="🏫" defaultValue="🏫"
-                    className="w-full p-3 bg-white/70 border border-gray-300 rounded-xl focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all text-gray-900 shadow-sm" />
-                </div>
-                <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Barva (HEX)</label>
                   <input type="color" name="barva" defaultValue="#FAED41"
                     className="w-full h-[50px] p-1 bg-white/70 border border-gray-300 rounded-xl cursor-pointer shadow-sm" />
