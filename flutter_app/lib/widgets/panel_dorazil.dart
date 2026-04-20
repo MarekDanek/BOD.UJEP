@@ -16,9 +16,9 @@ class PanelDorazil extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 50,
-      left: 20,
-      right: 20,
+      bottom: 0,
+      left: 0,
+      right: 0,
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -43,13 +43,13 @@ class PanelDorazil extends StatelessWidget {
                 ),
                 Container(
                   width: 40,
-                  height: 40,
+                  height: 50,
                   decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.black, width: 1.5)),
                   child: Center(child: Text(aktualniBod.toString(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             InkWell(
               onTap: onOtevrit,
               child: Container(
@@ -58,6 +58,7 @@ class PanelDorazil extends StatelessWidget {
                 child: const Text('Otevřít', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black)),
               ),
             ),
+            const SizedBox(height: 35),
           ],
         ),
       ),
