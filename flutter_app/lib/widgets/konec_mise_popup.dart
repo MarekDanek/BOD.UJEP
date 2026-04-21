@@ -3,6 +3,7 @@ import '../data/mise_data.dart'; // Potřebujeme přístup k datům o bodech
 
 class KonecMisePopup extends StatefulWidget {
   final List<BodMise> historieBodu;
+  final String odehranyCas;
   final Mise miseData; // <--- NOVÉ: Přidán objekt s daty o celé misi
   final VoidCallback onUzavrit;
   final VoidCallback onBonusy;
@@ -10,6 +11,7 @@ class KonecMisePopup extends StatefulWidget {
   const KonecMisePopup({
     super.key,
     required this.historieBodu,
+    required this.odehranyCas,
     required this.miseData, // <--- NOVÉ: Přidáno do konstruktoru
     required this.onUzavrit,
     required this.onBonusy,
@@ -136,7 +138,7 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
                     Expanded(
                       child: Center(
                         child: Text(
-                          widget.miseData.cas, // <--- Bere se dynamicky
+                          widget.odehranyCas, // <--- Bere se dynamicky
                           style: const TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)
                         )
                       )

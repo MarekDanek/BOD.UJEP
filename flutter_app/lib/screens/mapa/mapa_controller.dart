@@ -235,6 +235,7 @@ class MapaController {
       backgroundColor: Colors.transparent,
       builder: (context) => KonecMisePopup(
         historieBodu: trasaMise,
+        odehranyCas: getFormattedTime(),
         miseData: dataMise,
         onUzavrit: () {
           Navigator.pop(context);
@@ -288,8 +289,23 @@ class MapaController {
   }
 
   String getFormattedTime() {
-    final int minuty = celkovyCasSekundy ~/ 60;
-    return '$minuty min';
+  final int hodiny = celkovyCasSekundy ~/ 3600;
+  final int minuty = (celkovyCasSekundy % 3600) ~/ 60;
+  final int sekundy = celkovyCasSekundy % 60;
+  final List<String> casti = [];
+  if (hodiny > 0) {
+    casti.add('$hodiny h');
+  }
+  if (minuty > 0) {
+    casti.add('$minuty min');
+  }
+  if (sekundy > 0) {
+    casti.add('$sekundy s');
+  }
+  if (casti.isEmpty) {
+    return '0 s';
+  }
+  return casti.join(' ');
   }
 
   String getFormattedDistance() {
