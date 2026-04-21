@@ -102,7 +102,6 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
 
     return Scaffold(
       appBar: _buildAppBar(),
-      floatingActionButton: CenterUserButton(isFollowing: c.followUser, stavHry: c.stavHry, onPressed: c.centerOnUser),
       body: Stack(
         children: [
           FlutterMap(
@@ -137,7 +136,15 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
               MarkerLayer(markers: _buildMarkers(bodJeBlizko)),
             ],
           ),
-
+          Positioned(
+          right: 16,
+          bottom: 16,
+          child: CenterUserButton(
+          isFollowing: c.followUser,
+          stavHry: c.stavHry,
+          onPressed: c.centerOnUser,
+            ),
+          ),
           // TLAČÍTKO ZÁMKU
           Positioned(
             top: 80,
@@ -221,8 +228,8 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
           if (c.stavHry == 3) ...[
             DraggableScrollableSheet(
               initialChildSize: 0.35,
-              minChildSize: 0.12,
-              maxChildSize: 0.45,
+              minChildSize: 0.2,
+              maxChildSize: 0.6,
               snap: true,
               builder: (BuildContext context, ScrollController scrollController) {
                 return ArchivMisePopup(
