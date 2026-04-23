@@ -19,6 +19,7 @@ import '../../widgets/map_zoom_buttons.dart';
 import '../../widgets/audio_player.dart';
 import '../../widgets/archiv_mise_popup.dart';
 import '../../widgets/zamek_bodu_button.dart';
+import '../../widgets/start_nahled_bublina.dart';
 
 class MapaScreen extends StatefulWidget {
   const MapaScreen({super.key});
@@ -77,6 +78,10 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
         MarkerBuilder.buildUserMarker(c.userLatLng!, c.userHeading),
 
       if (c.stavHry == 0) MarkerBuilder.buildStartMarker(trasaMise.first, c.onMarkerTap),
+      if (c.stavHry == 0 && c.zobrazitStartNahled)Marker(point: LatLng(trasaMise.first.lat, trasaMise.first.lon),width: 200,height: 105,alignment: Alignment.center,rotate: true,child: FractionalTranslation(translation: const Offset(0, -0.1), // bublina nad bodem 
+        child: StartNahledBublina(nazev: dataMise.nazev,podnadpis: dataMise.podnadpis,onTap: c.onStartPreviewTap,),),
+  ),
+
 
       if (c.stavHry == 0 && c.miseDokoncena)
         MarkerBuilder.buildDokoncenaBublinaMarker(trasaMise.first, c.onMarkerTap),
@@ -115,6 +120,17 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             ),
             children: [
               TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'cz.ujep.bod', keepBuffer: 3,),
+              
+              if (c.stavHry == 0 && c.zobrazitStartNahled)
+                Positioned.fill(
+                child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () => c.zmenStav(() => c.zobrazitStartNahled = false),
+                child: const SizedBox.expand(),
+                ),
+              ),
+
+              
 
               if (c.pevnaTrasa.isNotEmpty)
                 PolylineLayer(

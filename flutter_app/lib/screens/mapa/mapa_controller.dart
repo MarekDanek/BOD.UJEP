@@ -20,6 +20,8 @@ class MapaController {
   final BuildContext context;
   final bool Function() isMounted;
 
+  bool zobrazitStartNahled = false;
+
   int stavHry = 0;
   int aktualniBod = 1;
   List<LatLng> trasaPoChodniku = [];
@@ -116,6 +118,7 @@ class MapaController {
             onPressed: () {
               Navigator.pop(context);
               zmenStav(() {
+                zobrazitStartNahled = false;
                 miseDokoncena = false; stavHry = 0; aktualniBod = 1;
                 trasaPoChodniku.clear(); pevnaTrasa.clear(); aktivniBonus = null;
                 startTime = null;
@@ -206,6 +209,7 @@ class MapaController {
   }
 
   void onStartVyrazit() {
+    zmenStav(() => zobrazitStartNahled = false);
     startTime = DateTime.now();
     celkovaVzdalenostMetry = 0.0;
     lastTrackedPosition = userLatLng;
@@ -281,7 +285,7 @@ class MapaController {
       vypocitejHistorickouTrasu();
     } else {
       if (stavHry == 0) {
-        DialogManager.ukazStartPopup(context: context, miseData: dataMise, onVyrazit: onStartVyrazit);
+        zmenStav(() => zobrazitStartNahled = !zobrazitStartNahled);
       } else if (stavHry == 1) {
         prepniNaStav(2);
       }
@@ -319,4 +323,13 @@ class MapaController {
     mapController.rotate(0);
     notifyListeners();
   }
+
+  void onStartPreviewTap() {
+  zmenStav(() => zobrazitStartNahled = false);
+  DialogManager.ukazStartPopup(
+    context: context,
+    miseData: dataMise,
+    onVyrazit: onStartVyrazit,
+  );
+}
 }
