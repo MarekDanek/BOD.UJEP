@@ -114,6 +114,18 @@ class StartScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 10),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Text(
+                    'Trasy',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
                 const Spacer(),
                 Center(
                   child: Image.asset(
