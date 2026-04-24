@@ -48,13 +48,14 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
-  PreferredSizeWidget _buildAppBar() {
+PreferredSizeWidget _buildAppBar() {
     if (c.stavHry == 0) {
       return MyAppBar(
         levaIkona: Icons.menu,
         naLevaIkonaKlik: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StartScreen())),
       );
     } else if (c.stavHry == 3) {
+      // ARCHIV: Zde to necháme původní, hráč si jen prohlíží hotovou mapu a křížkem to prostě zavře
       return AppBarPlay(
         nazevMise: 'Archiv: ${dataMise.nazev}',
         postup: '${trasaMise.length}/${trasaMise.length}',
@@ -62,15 +63,17 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
         onCloseClick: () => c.prepniNaStav(0),
       );
     } else {
+      // AKTIVNÍ HRA (stavHry 1 a 2): Tady chceme naše nové chytré varování
       return AppBarPlay(
         nazevMise: dataMise.nazev,
         postup: '${c.aktualniBod - 1}/${trasaMise.length}',
         onMenuClick: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StartScreen())),
-        onCloseClick: () => c.prepniNaStav(0),
+
+        // --- TADY JE TA JEDINÁ ZMĚNA ---
+        onCloseClick: () => c.opustitMapu(),
       );
     }
   }
-
   List<Marker> _buildMarkers(bool bodJeBlizko) {
     return [
       // PŘIDÁNO c.userHeading - posíláme směr kompasu do markeru!
@@ -78,7 +81,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
         MarkerBuilder.buildUserMarker(c.userLatLng!, c.userHeading),
 
       if (c.stavHry == 0) MarkerBuilder.buildStartMarker(trasaMise.first, c.onMarkerTap),
-      if (c.stavHry == 0 && c.zobrazitStartNahled)Marker(point: LatLng(trasaMise.first.lat, trasaMise.first.lon),width: 200,height: 105,alignment: Alignment.center,rotate: true,child: FractionalTranslation(translation: const Offset(0, -0.1), // bublina nad bodem 
+      if (c.stavHry == 0 && c.zobrazitStartNahled)Marker(point: LatLng(trasaMise.first.lat, trasaMise.first.lon),width: 200,height: 105,alignment: Alignment.center,rotate: true,child: FractionalTranslation(translation: const Offset(0, -0.1), // bublina nad bodem
         child: StartNahledBublina(nazev: dataMise.nazev,podnadpis: dataMise.podnadpis,onTap: c.onStartPreviewTap,),),
   ),
 
@@ -120,7 +123,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             ),
             children: [
               TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'cz.ujep.bod', keepBuffer: 3,),
-              
+
               if (c.stavHry == 0 && c.zobrazitStartNahled)
                 Positioned.fill(
                 child: GestureDetector(
@@ -130,7 +133,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                 ),
               ),
 
-              
+
 
               if (c.pevnaTrasa.isNotEmpty)
                 PolylineLayer(

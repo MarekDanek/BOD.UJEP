@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_compass/flutter_compass.dart'; // PŘIDÁNO: Kompas
+import 'package:flutter_compass/flutter_compass.dart';
 
 import '../../utils/logika_cesty.dart';
 import '../../utils/dialog_manager.dart';
@@ -14,7 +14,8 @@ import '../../widgets/konec_mise_popup.dart';
 import '../../widgets/slide_bonus.dart';
 import '../../utils/vzdalenost_bodu.dart';
 
-class MapaController {
+// PŘIDÁNO: mixin WidgetsBindingObserver pro sledování stavu aplikace (vypnutí/minimalizace)
+class MapaController with WidgetsBindingObserver {
   final VoidCallback notifyListeners;
   final TickerProvider vsync;
   final BuildContext context;
@@ -37,9 +38,9 @@ class MapaController {
 
   final MapController mapController = MapController();
   StreamSubscription? _positionSub;
-  StreamSubscription? _compassSub; // PŘIDÁNO: Odběr kompasu
+  StreamSubscription? _compassSub;
   LatLng? userLatLng;
-  double userHeading = 0.0; // PŘIDÁNO: Proměnná pro rotaci šipky
+  double userHeading = 0.0;
   String? locationError;
   bool followUser = true;
 
@@ -58,17 +59,45 @@ class MapaController {
   }
 
   void _init() {
+    WidgetsBinding.instance.addObserver(this); // PŘIDÁNO: Spuštění sledování appky
     loadMiseState();
     radarController = AnimationController(vsync: vsync, duration: const Duration(seconds: 2))..repeat(reverse: true);
     radarAnimation = CurvedAnimation(parent: radarController, curve: Curves.easeInOut);
     startLocationTracking();
-    startCompassTracking(); // PŘIDÁNO: Spuštění kompasu
+    startCompassTracking();
   }
 
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this); // PŘIDÁNO: Zrušení sledování
     _positionSub?.cancel();
-    _compassSub?.cancel(); // PŘIDÁNO: Zrušení kompasu
+    _compassSub?.cancel();
     radarController.dispose();
+  }
+
+  // PŘIDÁNO: Tato funkce se zavolá sama, jakmile uživatel aplikaci minimalizuje nebo shodí!
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive || state == AppLifecycleState.detached) {
+      _ulozAktualniPostup();
+    }
+  }
+
+  // PŘIDÁNO: Bleskové uložení aktuálního stavu hráče
+  Future<void> _ulozAktualniPostup() async {
+    if (stavHry == 0 || stavHry == 3) return; // Není potřeba ukládat rozpracovanost
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('mise_kunes_stavHry', stavHry);
+    await prefs.setInt('mise_kunes_aktualniBod', aktualniBod);
+    await prefs.setDouble('mise_kunes_vzdalenost', celkovaVzdalenostMetry);
+
+    // Záchrana naměřeného času
+    if (startTime != null) {
+      final odpracovano = DateTime.now().difference(startTime!).inSeconds;
+      await prefs.setInt('mise_kunes_cas_docasny', celkovyCasSekundy + odpracovano);
+    } else {
+      await prefs.setInt('mise_kunes_cas_docasny', celkovyCasSekundy);
+    }
   }
 
   void zmenStav(VoidCallback akce) {
@@ -76,7 +105,6 @@ class MapaController {
     notifyListeners();
   }
 
-  // PŘIDÁNO: Metoda pro sledování kompasu (otáčení šipky i na místě)
   void startCompassTracking() {
     _compassSub = FlutterCompass.events?.listen((event) {
       if (event.heading != null && isMounted()) {
@@ -92,9 +120,30 @@ class MapaController {
     if (isMounted()) {
       zmenStav(() {
         miseDokoncena = prefs.getBool('mise_kunes_hotovo') ?? false;
-        celkovyCasSekundy = prefs.getInt('mise_kunes_cas') ?? 0;
-        celkovaVzdalenostMetry = prefs.getDouble('mise_kunes_vzdalenost') ?? 0.0;
+
+        if (miseDokoncena) {
+          celkovyCasSekundy = prefs.getInt('mise_kunes_cas') ?? 0;
+          celkovaVzdalenostMetry = prefs.getDouble('mise_kunes_vzdalenost') ?? 0.0;
+        } else {
+          // PŘIDÁNO: Pokud mise není hotová, zkusíme načíst uložený postup!
+          stavHry = prefs.getInt('mise_kunes_stavHry') ?? 0;
+          aktualniBod = prefs.getInt('mise_kunes_aktualniBod') ?? 1;
+          celkovaVzdalenostMetry = prefs.getDouble('mise_kunes_vzdalenost') ?? 0.0;
+
+          int ulozenyCas = prefs.getInt('mise_kunes_cas_docasny') ?? 0;
+          if (ulozenyCas > 0 && stavHry > 0) {
+            celkovyCasSekundy = ulozenyCas;
+            startTime = DateTime.now(); // Začneme čas počítat znovu od tohoto mezisoučtu
+          }
+        }
       });
+
+      // PŘIDÁNO: Dokreslíme na mapu prošlou trasu, pokud se hráč vrací do rozehrané hry
+      if (stavHry == 1 || stavHry == 2) {
+        vypocitejHistorickouTrasu();
+        // Pokud je stavHry == 1 (na cestě), trasa ke konkrétnímu bodu se dokreslí automaticky
+        // při prvním příjmu GPS signálu ve funkci startLocationTracking.
+      }
     }
   }
 
@@ -103,6 +152,13 @@ class MapaController {
     await prefs.setBool('mise_kunes_hotovo', hotovo);
     await prefs.setInt('mise_kunes_cas', celkovyCasSekundy);
     await prefs.setDouble('mise_kunes_vzdalenost', celkovaVzdalenostMetry);
+
+    // PŘIDÁNO: Vyčistíme dočasné ukládání po dokončení
+    if (hotovo) {
+      await prefs.remove('mise_kunes_stavHry');
+      await prefs.remove('mise_kunes_aktualniBod');
+      await prefs.remove('mise_kunes_cas_docasny');
+    }
   }
 
   void resetMise() {
@@ -115,7 +171,7 @@ class MapaController {
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Zrušit', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold))),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
               zmenStav(() {
                 zobrazitStartNahled = false;
@@ -127,8 +183,77 @@ class MapaController {
                 lastTrackedPosition = null;
               });
               saveMiseState(false);
+
+              // PŘIDÁNO: Ujistíme se, že i dočasný postup se vymaže
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('mise_kunes_stavHry');
+              await prefs.remove('mise_kunes_aktualniBod');
+              await prefs.remove('mise_kunes_cas_docasny');
             },
             child: const Text('Resetovat', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+ void opustitMapu() {
+    showDialog(
+      context: context,
+      builder: (dCtx) => AlertDialog(
+        title: const Text('Přerušit misi?', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Můžeš se bezpečně vrátit k náhledu mise. Tvá pozice zůstane uložena a po kliknutí na "Vyrazit" budeš moci pokračovat.',
+          style: TextStyle(fontWeight: FontWeight.bold)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dCtx).pop(),
+            child: const Text('Zrušit', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+          ),
+
+          // ZAČÍT ODZNOVA - smaže vše a hodí tě na začátek (stav 0)
+          TextButton(
+            onPressed: () async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.remove('mise_kunes_stavHry');
+              await prefs.remove('mise_kunes_aktualniBod');
+              await prefs.remove('mise_kunes_cas_docasny');
+              await prefs.remove('mise_kunes_vzdalenost');
+
+              zmenStav(() {
+                stavHry = 0;
+                aktualniBod = 1;
+                trasaPoChodniku = [];
+                pevnaTrasa = [];
+                startTime = null;
+                celkovyCasSekundy = 0;
+                celkovaVzdalenostMetry = 0.0;
+                zobrazitStartNahled = false;
+              });
+
+              if (!dCtx.mounted) return;
+              Navigator.of(dCtx).pop();
+            },
+            child: const Text('Začít odznova', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+
+          // ULOŽIT A ODEJÍT - uloží postup a hodí tě do náhledu (stav 0)
+          TextButton(
+            onPressed: () async {
+              // 1. Uložíme si, kde jsme (např. bod 3 a stav "na cestě")
+              await _ulozAktualniPostup();
+
+              // 2. Přepneme UI do režimu "bublina" (stav 0)
+              zmenStav(() {
+                stavHry = 0;
+                trasaPoChodniku = []; // Schováme modrou čáru
+                zobrazitStartNahled = false;
+              });
+
+              if (!dCtx.mounted) return;
+              Navigator.of(dCtx).pop();
+            },
+            child: const Text('Uložit a odejít', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -206,16 +331,23 @@ class MapaController {
         aktualniBod = 1; trasaPoChodniku.clear(); pevnaTrasa.clear(); aktivniBonus = null; skrytyPrehravac = false;
       }
     });
+    _ulozAktualniPostup(); // PŘIDÁNO: Pro jistotu uložení rovnou při přepnutí stavu
   }
 
-  void onStartVyrazit() {
-    zmenStav(() => zobrazitStartNahled = false);
-    startTime = DateTime.now();
-    celkovaVzdalenostMetry = 0.0;
-    lastTrackedPosition = userLatLng;
+void onStartVyrazit() {
+    zmenStav(() {
+      zobrazitStartNahled = false;
 
-    prepniNaStav(1);
+      startTime ??= DateTime.now();
+    });
+
+    lastTrackedPosition = userLatLng;
+    int cilovyStav = (stavHry == 0) ? 1 : stavHry;
+
+    prepniNaStav(cilovyStav);
     vypocitejTrasu();
+
+    if (aktualniBod > 1) vypocitejHistorickouTrasu();
   }
 
   void posunNaDalsiBod() {
@@ -277,9 +409,9 @@ class MapaController {
   }
 
   void onMarkerTap() {
-        final bool bodJeBlizko = userLatLng != null && VzdalenostBodu.jeUBodu(
+    final bool bodJeBlizko = userLatLng != null && VzdalenostBodu.jeUBodu(
         userLat: userLatLng!.latitude, userLon: userLatLng!.longitude, cilovyBod: trasaMise[aktualniBod-1], perimetrMetry: 28);
-    if (!bodJeBlizko &&  jeBodZamknuty&& stavHry!=0){ return;}
+    if (!bodJeBlizko &&  jeBodZamknuty && stavHry!=0){ return;}
     if (miseDokoncena) {
       zmenStav(() { stavHry = 3; aktualniBod = trasaMise.length; });
       vypocitejHistorickouTrasu();
@@ -293,23 +425,15 @@ class MapaController {
   }
 
   String getFormattedTime() {
-  final int hodiny = celkovyCasSekundy ~/ 3600;
-  final int minuty = (celkovyCasSekundy % 3600) ~/ 60;
-  final int sekundy = celkovyCasSekundy % 60;
-  final List<String> casti = [];
-  if (hodiny > 0) {
-    casti.add('$hodiny h');
-  }
-  if (minuty > 0) {
-    casti.add('$minuty min');
-  }
-  if (sekundy > 0) {
-    casti.add('$sekundy s');
-  }
-  if (casti.isEmpty) {
-    return '0 s';
-  }
-  return casti.join(' ');
+    final int hodiny = celkovyCasSekundy ~/ 3600;
+    final int minuty = (celkovyCasSekundy % 3600) ~/ 60;
+    final int sekundy = celkovyCasSekundy % 60;
+    final List<String> casti = [];
+    if (hodiny > 0) casti.add('$hodiny h');
+    if (minuty > 0) casti.add('$minuty min');
+    if (sekundy > 0) casti.add('$sekundy s');
+    if (casti.isEmpty) return '0 s';
+    return casti.join(' ');
   }
 
   String getFormattedDistance() {
@@ -325,11 +449,11 @@ class MapaController {
   }
 
   void onStartPreviewTap() {
-  zmenStav(() => zobrazitStartNahled = false);
-  DialogManager.ukazStartPopup(
-    context: context,
-    miseData: dataMise,
-    onVyrazit: onStartVyrazit,
-  );
-}
+    zmenStav(() => zobrazitStartNahled = false);
+    DialogManager.ukazStartPopup(
+      context: context,
+      miseData: dataMise,
+      onVyrazit: onStartVyrazit,
+    );
+  }
 }

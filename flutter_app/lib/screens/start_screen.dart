@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'mapa/mapa_screen.dart';
 import '../widgets/app_bar.dart';
+import '../screens/ucet_screen.dart'; // Ujisti se, že máš tento soubor vytvořený
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
@@ -70,7 +71,7 @@ class StartScreen extends StatelessWidget {
         },
       ),
 
-      // Celé tělo je teď klikatelné
+      // Celé tělo je teď klikatelné (háže na mapu)
       body: GestureDetector(
         behavior: HitTestBehavior.opaque, // Zajistí klikatelnost i na prázdném pozadí
         onTap: () {
@@ -114,7 +115,34 @@ class StartScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+
+                const SizedBox(height: 10), // Mezera mezi Mapa a Účet
+
+                // --- NOVÁ POLOŽKA: ÚČET ---
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      // Vlastní akce pro položku Účet (přepíše ten hlavní GestureDetector)
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const UcetScreen()),
+                      );
+                    },
+                    child: const Text(
+                      'Účet',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                // --------------------------
+
+                const SizedBox(height: 10), // Mezera mezi Účet a Trasy
+
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20.0),
                   child: Text(
