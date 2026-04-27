@@ -15,7 +15,6 @@ class _SeznamTrasScreenState extends State<SeznamTrasScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _zobrazitVyhledavani = false;
   String _searchQuery = '';
-  String _vybranyTyp = 'Vše';
   RazeniTras _razeni = RazeniTras.nazevVzestupne;
 
   final List<Mise> _vsechnyMise = [dataMise];
@@ -61,9 +60,7 @@ class _SeznamTrasScreenState extends State<SeznamTrasScreen> {
       final odpovidaVyhledavani = _searchQuery.isEmpty ||
           mise.nazev.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           mise.podnadpis.toLowerCase().contains(_searchQuery.toLowerCase());
-
-      final odpovidaTypu = _vybranyTyp == 'Vše' || mise.typ == _vybranyTyp;
-      return odpovidaVyhledavani && odpovidaTypu;
+      return odpovidaVyhledavani;
     }).toList();
 
     vyfiltrovane.sort((a, b) {
@@ -98,7 +95,6 @@ class _SeznamTrasScreenState extends State<SeznamTrasScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dostupneTypy = {'Vše', ..._vsechnyMise.map((m) => m.typ)}.toList();
     final miseList = _getFiltrovaneARazeneMise();
 
     return Scaffold(
@@ -199,19 +195,6 @@ class _SeznamTrasScreenState extends State<SeznamTrasScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: dostupneTypy.map((typ) {
-                    return ChoiceChip(
-                      label: Text(typ),
-                      selected: _vybranyTyp == typ,
-                      onSelected: (_) => setState(() => _vybranyTyp = typ),
-                      selectedColor: const Color(0xFFFAED41),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
                 Expanded(
                   child: miseList.isEmpty
                       ? const Center(
@@ -281,15 +264,6 @@ class _SeznamTrasScreenState extends State<SeznamTrasScreen> {
                                         ),
                                       ),
                                     ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Typ: ${mise.typ}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black87,
-                                    ),
                                   ),
                                 ],
                               ),
