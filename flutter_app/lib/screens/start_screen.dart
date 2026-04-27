@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'mapa/mapa_screen.dart';
 import '../widgets/app_bar.dart';
 import '../screens/ucet_screen.dart'; // Ujisti se, že máš tento soubor vytvořený
+import '../screens/seznam_tras_screen.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
@@ -143,14 +144,22 @@ class StartScreen extends StatelessWidget {
 
                 const SizedBox(height: 10), // Mezera mezi Účet a Trasy
 
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Text(
-                    'Trasy',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SeznamTrasScreen()),
+                      );
+                    },
+                    child: const Text(
+                      'Trasy',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                 ),
