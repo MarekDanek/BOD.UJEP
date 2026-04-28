@@ -106,7 +106,7 @@ PreferredSizeWidget _buildAppBar() {
   @override
   Widget build(BuildContext context) {
     final bool bodJeBlizko = c.userLatLng != null && VzdalenostBodu.jeUBodu(
-        userLat: c.userLatLng!.latitude, userLon: c.userLatLng!.longitude, cilovyBod: trasaMise[c.aktualniBod-1], perimetrMetry: 10);
+        userLat: c.userLatLng!.latitude, userLon: c.userLatLng!.longitude, cilovyBod: trasaMise[c.aktualniBod-1], perimetrMetry: 12);
 
     return Scaffold(
       appBar: _buildAppBar(),
