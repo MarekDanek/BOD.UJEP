@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"navandr-admin","appId":"1:64904855111:android:cf8a82ce386085550ffb62","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"navandr-admin","configurations":{"android":"1:64904855111:android:cf8a82ce386085550ffb62","web":"1:64904855111:web:55f4c029d0d999a50ffb62"}}}}}}

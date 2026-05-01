@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
-import 'MOJE.dart';
+import 'moje.dart';
 
 class LogikaCesty {
   static const String apiKey = Moje.orsApiKey;

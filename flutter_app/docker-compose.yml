@@ -1,0 +1,7 @@
+services:
+  navandr-admin:
+    build: .
+    ports:
+      - "8080:80"
+    container_name: navandr_admin_panel
+    restart: unless-stopped

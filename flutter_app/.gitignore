@@ -44,4 +44,18 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Firebase & Klíče
 lib/utils/moje.dart
+lib/firebase_options.dart
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+
+# Lokální nastavení prostředí
+.metadata
+android/local.properties
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+
+# OS specifické
+Thumbs.db
+desktop.ini

@@ -1,0 +1,26 @@
+# Git
+.git
+.gitignore
+
+# Flutter / Dart build složky (tyhle Docker nepotřebuje, vytvoří si vlastní)
+build/
+.dart_tool/
+.pub-cache/
+.pub/
+.packages
+
+# IDE soubory
+.idea/
+.vscode/
+*.iml
+
+# Platformy, které pro Web build v Dockeru nepotřebujeme
+android/
+ios/
+linux/
+macos/
+windows/
+test/
+
+# Dokumentace
+README.md
