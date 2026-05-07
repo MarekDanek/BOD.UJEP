@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'mapa/mapa_screen.dart';
 import '../widgets/app_bar.dart';
-import '../screens/ucet_screen.dart'; // Ujisti se, že máš tento soubor vytvořený
+import '../screens/ucet_screen.dart'; 
 import '../screens/seznam_tras_screen.dart';
+import '../screens/about_screen.dart'; 
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
@@ -72,11 +73,9 @@ class StartScreen extends StatelessWidget {
         },
       ),
 
-      // Celé tělo je teď klikatelné (háže na mapu)
       body: GestureDetector(
-        behavior: HitTestBehavior.opaque, // Zajistí klikatelnost i na prázdném pozadí
+        behavior: HitTestBehavior.opaque,
         onTap: () {
-          // Stejná logika jako u ikony v AppBaru
           if (Navigator.canPop(context)) {
             Navigator.pop(context);
           } else {
@@ -87,7 +86,6 @@ class StartScreen extends StatelessWidget {
           }
         },
         child: Container(
-          // Zabereme maximální možný prostor
           width: double.infinity,
           height: double.infinity,
           decoration: const BoxDecoration(
@@ -117,14 +115,12 @@ class StartScreen extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 10), // Mezera mezi Mapa a Účet
+                const SizedBox(height: 10),
 
-                // --- NOVÁ POLOŽKA: ÚČET ---
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: GestureDetector(
                     onTap: () {
-                      // Vlastní akce pro položku Účet (přepíše ten hlavní GestureDetector)
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const UcetScreen()),
@@ -140,9 +136,8 @@ class StartScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                // --------------------------
 
-                const SizedBox(height: 10), // Mezera mezi Účet a Trasy
+                const SizedBox(height: 10),
 
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -163,6 +158,31 @@ class StartScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                const SizedBox(height: 10), // Mezera mezi Trasy a O nás
+
+                // --- O NÁS ---
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AboutScreen()),
+                      );
+                    },
+                    child: const Text(
+                      'O nás',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                // --------------------------
+
                 const Spacer(),
                 Center(
                   child: Image.asset(
