@@ -52,7 +52,8 @@ class MisePopup extends StatelessWidget {
                           style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.black, letterSpacing: -0.5),
                         ),
                         Text(
-                          '0/${trasaMise.length}', // Ujisti se, že trasaMise je zde dostupná
+                          // UPRAVENO: Používá dynamickou délku z předané mise
+                          '0/${miseData.trasa.length}', 
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black),
                         ),
                       ],

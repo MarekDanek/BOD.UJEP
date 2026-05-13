@@ -1,31 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../data/mise_data.dart';
+import '../data/mise_data.dart'; 
 import 'dokoncena_mise_bublina.dart';
 import 'dart:math' as math;
-
 
 class MarkerBuilder {
 
   // --- START MARKER ---
-  static Marker buildStartMarker(BodMise point, VoidCallback onTap) {
+  static Marker buildStartMarker(Mise mise, VoidCallback onTap) {
     return Marker(
-      point: LatLng(point.lat, point.lon),
+      point: LatLng(mise.startLat, mise.startLon), // UPRAVENO NA DYNAMICKÉ SOUŘADNICE MISE
       width: 40,
       height: 40,
       rotate: true,
       child: Builder(
         builder: (context) {
-
           final zoom = MapCamera.of(context).zoom;
-
-
           double myScale = ((zoom - 11.0) / 4.0).clamp(0.3, 1.0);
 
           return GestureDetector(
             onTap: onTap,
-            // Aplikujeme zmenšení na celý bod
             child: Transform.scale(
               scale: myScale,
               child: Container(
@@ -49,9 +44,10 @@ class MarkerBuilder {
     );
   }
 
- static Marker buildDokoncenaBublinaMarker(BodMise point, VoidCallback onTap) {
+  // --- DOKONČENÁ MISE BUBLINA ---
+  static Marker buildDokoncenaBublinaMarker(Mise mise, VoidCallback onTap) {
     return Marker(
-      point: LatLng(point.lat, point.lon),
+      point: LatLng(mise.startLat, mise.startLon), // UPRAVENO NA DYNAMICKÉ SOUŘADNICE MISE
       width: 300,
       height: 300,
       alignment: Alignment.center,
@@ -74,8 +70,8 @@ class MarkerBuilder {
               child: FractionalTranslation(
                 translation: const Offset(0, -0.5),
                 child: DokoncenaMiseBublina(
-                  miseData: dataMise,
-                  pocetBodu: trasaMise.length,
+                  miseData: mise, 
+                  pocetBodu: mise.trasa.length,
                   onTap: onTap,
                 ),
               ),
@@ -153,19 +149,18 @@ class MarkerBuilder {
     );
   }
 
-// --- UŽIVATELSKÝ MARKER (PLYNULÁ ŠIPKA) ---
+  // --- UŽIVATELSKÝ MARKER (PLYNULÁ ŠIPKA) ---
   static Marker buildUserMarker(LatLng point, double heading) {
-    // Převod stupňů na radiány pro Transform.rotate
     final double rotationRadians = heading * (math.pi / 180);
 
     return Marker(
       point: point,
       width: 45,
       height: 45,
-      rotate: false, // Rotaci děláme animovaně uvnitř
+      rotate: false, 
       child: TweenAnimationBuilder<double>(
         tween: Tween<double>(begin: 0, end: rotationRadians),
-        duration: const Duration(milliseconds: 300), // Rychlost plynulého dotočení
+        duration: const Duration(milliseconds: 300), 
         curve: Curves.decelerate,
         builder: (context, value, child) {
           return Transform.rotate(
@@ -173,7 +168,6 @@ class MarkerBuilder {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Stín (záře) pod šipkou
                 Container(
                   width: 20,
                   height: 20,
@@ -188,13 +182,11 @@ class MarkerBuilder {
                     ],
                   ),
                 ),
-                // Hlavní modrá šipka
                 const Icon(
                   Icons.navigation,
                   size: 35,
                   color: Colors.blue,
                 ),
-                // Bílý obrys šipky pro lepší viditelnost na mapě
                 const Icon(
                   Icons.navigation_outlined,
                   size: 35,
@@ -208,7 +200,7 @@ class MarkerBuilder {
     );
   }
 
-  // --- VELKÝ AKTIVNÍ BOD (KTERÝ ZROVNA HRÁČ HLEDÁ) ---
+  // --- VELKÝ AKTIVNÍ BOD ---
   static Marker buildBigMarker(BodMise point) {
     return Marker(
       point: LatLng(point.lat, point.lon),
@@ -231,7 +223,7 @@ class MarkerBuilder {
     );
   }
 
-  // --- KULATÝ BOD (PROŠLÁ TRASA BĚHEM HRANÍ) ---
+  // --- KULATÝ BOD ---
   static Marker buildPassedPointCircleMarker(BodMise bod) {
     return Marker(
       point: LatLng(bod.lat, bod.lon),
@@ -256,7 +248,7 @@ class MarkerBuilder {
     );
   }
 
-  // --- KULATÝ BOD PRO ARCHIV S MOŽNOSTÍ KLIKNUTÍ ---
+  // --- KULATÝ BOD S ONTAP ---
   static Marker buildPassedPointCircleMarkerWithOnTap(BodMise bod, VoidCallback onTap) {
     return Marker(
       point: LatLng(bod.lat, bod.lon),

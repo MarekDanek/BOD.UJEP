@@ -22,7 +22,9 @@ import '../../widgets/zamek_bodu_button.dart';
 import '../../widgets/start_nahled_bublina.dart';
 
 class MapaScreen extends StatefulWidget {
-  const MapaScreen({super.key});
+  final Mise vybranaMise; 
+
+  const MapaScreen({super.key, required this.vybranaMise});
 
   @override
   State<MapaScreen> createState() => _MapaScreenState();
@@ -35,6 +37,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
   void initState() {
     super.initState();
     c = MapaController(
+      mise: widget.vybranaMise,
       notifyListeners: () => setState(() {}),
       vsync: this,
       context: context,
@@ -48,65 +51,76 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
-PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar() {
     if (c.stavHry == 0) {
       return MyAppBar(
         levaIkona: Icons.menu,
         naLevaIkonaKlik: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StartScreen())),
       );
     } else if (c.stavHry == 3) {
-      // ARCHIV: Zde to necháme původní, hráč si jen prohlíží hotovou mapu a křížkem to prostě zavře
       return AppBarPlay(
-        nazevMise: 'Archiv: ${dataMise.nazev}',
-        postup: '${trasaMise.length}/${trasaMise.length}',
+        nazevMise: 'Archiv: ${c.mise.nazev}',
+        postup: '${c.mise.trasa.length}/${c.mise.trasa.length}',
         onMenuClick: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StartScreen())),
         onCloseClick: () => c.prepniNaStav(0),
       );
     } else {
-      // AKTIVNÍ HRA (stavHry 1 a 2): Tady chceme naše nové chytré varování
       return AppBarPlay(
-        nazevMise: dataMise.nazev,
-        postup: '${c.aktualniBod - 1}/${trasaMise.length}',
+        nazevMise: c.mise.nazev,
+        postup: '${c.aktualniBod - 1}/${c.mise.trasa.length}',
         onMenuClick: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const StartScreen())),
-
-        // --- TADY JE TA JEDINÁ ZMĚNA ---
         onCloseClick: () => c.opustitMapu(),
       );
     }
   }
+
   List<Marker> _buildMarkers(bool bodJeBlizko) {
     return [
-      // PŘIDÁNO c.userHeading - posíláme směr kompasu do markeru!
       if (c.userLatLng != null)
         MarkerBuilder.buildUserMarker(c.userLatLng!, c.userHeading),
 
-      if (c.stavHry == 0) MarkerBuilder.buildStartMarker(trasaMise.first, c.onMarkerTap),
-      if (c.stavHry == 0 && c.zobrazitStartNahled)Marker(point: LatLng(trasaMise.first.lat, trasaMise.first.lon),width: 200,height: 105,alignment: Alignment.center,rotate: true,child: FractionalTranslation(translation: const Offset(0, -0.1), // bublina nad bodem
-        child: StartNahledBublina(nazev: dataMise.nazev,podnadpis: dataMise.podnadpis,onTap: c.onStartPreviewTap,),),
-  ),
-
-
-      if (c.stavHry == 0 && c.miseDokoncena)
-        MarkerBuilder.buildDokoncenaBublinaMarker(trasaMise.first, c.onMarkerTap),
+      if (c.stavHry == 0)
+        for (var m in vsechnyMise) ...[
+          MarkerBuilder.buildStartMarker(m, () => c.onMissionTap(m)),
+          
+          if (c.zobrazitStartNahled && c.mise.nazev == m.nazev)
+            Marker(
+              point: LatLng(m.startLat, m.startLon),
+              width: 200, height: 105, alignment: Alignment.center, rotate: true,
+              child: FractionalTranslation(
+                translation: const Offset(0, -0.1),
+                child: StartNahledBublina(
+                  nazev: m.nazev, 
+                  podnadpis: m.podnadpis, 
+                  onTap: c.onStartPreviewTap,
+                ),
+              ),
+            ),
+            
+          if (c.miseDokoncena && c.mise.nazev == m.nazev)
+            MarkerBuilder.buildDokoncenaBublinaMarker(m, () => c.onMissionTap(m)),
+        ],
 
       if (c.stavHry > 0)
-        for (int i = 0; i < trasaMise.length; i++)
+        for (int i = 0; i < c.mise.trasa.length; i++)
           if (c.stavHry == 3)
-            MarkerBuilder.buildPassedPointCircleMarkerWithOnTap(trasaMise[i], () => DialogManager.ukazPribehPopup(
-                context: context, historieBodu: trasaMise.sublist(0, i + 1), miseData: dataMise, onPokracovat: () {}))
-          else if (i < c.aktualniBod)
-            if (i == c.aktualniBod - 1)
-              c.stavHry == 1 ? MarkerBuilder.buildNormalMarker(trasaMise[i], c.onMarkerTap,jeBlizko: bodJeBlizko) : MarkerBuilder.buildBigMarker(trasaMise[i])
-            else
-              MarkerBuilder.buildPassedPointCircleMarker(trasaMise[i]),
-
+            MarkerBuilder.buildPassedPointCircleMarkerWithOnTap(c.mise.trasa[i], () => DialogManager.ukazPribehPopup(
+                context: context, historieBodu: c.mise.trasa.sublist(0, i + 1), miseData: c.mise, onPokracovat: () {}))
+          else if (i == c.aktualniBod - 1)
+            c.stavHry == 1 
+                ? MarkerBuilder.buildNormalMarker(c.mise.trasa[i], () => c.onMarkerTap(i), jeBlizko: bodJeBlizko) 
+                : MarkerBuilder.buildBigMarker(c.mise.trasa[i])
+          else if (i < c.aktualniBod - 1)
+            MarkerBuilder.buildPassedPointCircleMarkerWithOnTap(c.mise.trasa[i], () => c.onMarkerTap(i))
+          else
+            MarkerBuilder.buildNormalMarker(c.mise.trasa[i], () => c.onMarkerTap(i), jeBlizko: false),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool bodJeBlizko = c.userLatLng != null && VzdalenostBodu.jeUBodu(
-        userLat: c.userLatLng!.latitude, userLon: c.userLatLng!.longitude, cilovyBod: trasaMise[c.aktualniBod-1], perimetrMetry: 12);
+    final bool bodJeBlizko = c.userLatLng != null && c.stavHry != 0 && VzdalenostBodu.jeUBodu(
+        userLat: c.userLatLng!.latitude, userLon: c.userLatLng!.longitude, cilovyBod: c.mise.trasa[c.aktualniBod-1], perimetrMetry: 12);
 
     return Scaffold(
       appBar: _buildAppBar(),
@@ -115,7 +129,7 @@ PreferredSizeWidget _buildAppBar() {
           FlutterMap(
             mapController: c.mapController,
             options: MapOptions(
-              initialCenter: c.userLatLng ?? const LatLng(50.6653, 14.0255),
+              initialCenter: c.userLatLng ?? LatLng(c.mise.startLat, c.mise.startLon),
               initialZoom: 16.5,
               minZoom: 10.0,
               maxZoom: 19.0,
@@ -132,8 +146,6 @@ PreferredSizeWidget _buildAppBar() {
                 child: const SizedBox.expand(),
                 ),
               ),
-
-
 
               if (c.pevnaTrasa.isNotEmpty)
                 PolylineLayer(
@@ -164,7 +176,6 @@ PreferredSizeWidget _buildAppBar() {
           onPressed: c.centerOnUser,
             ),
           ),
-          // TLAČÍTKO ZÁMKU
           Positioned(
             top: 80,
             left : 15,
@@ -183,8 +194,6 @@ PreferredSizeWidget _buildAppBar() {
               ),
             ),
           ),
-
-          // TLAČÍTKO PRO RESET ROTACE (KOMPAS)
           Positioned(
             top: 150,
             left: 20,
@@ -236,13 +245,23 @@ PreferredSizeWidget _buildAppBar() {
               snap: true,
               builder: (BuildContext context, ScrollController scrollController) {
                 return PanelPresun(
-                  bodData: trasaMise[c.aktualniBod - 1],
+                  bodData: c.mise.trasa[c.aktualniBod - 1],
                   aktualniBod: c.aktualniBod,
                   scrollController: scrollController,
                 );
               },
             ),
-          if (c.stavHry == 2) PanelDorazil(bodData: trasaMise[c.aktualniBod - 1], aktualniBod: c.aktualniBod, onOtevrit: () => DialogManager.ukazPribehPopup(context: context, historieBodu: trasaMise.sublist(0, c.aktualniBod), miseData: dataMise, onPokracovat: c.onPribehPokracovat)),
+          if (c.stavHry == 2) 
+            PanelDorazil(
+              bodData: c.mise.trasa[c.aktualniBod - 1], 
+              aktualniBod: c.aktualniBod, 
+              onOtevrit: () => DialogManager.ukazPribehPopup(
+                context: context, 
+                historieBodu: c.mise.trasa.sublist(0, c.aktualniBod), 
+                miseData: c.mise, 
+                onPokracovat: c.onPribehPokracovat
+              )
+            ),
 
           if (c.stavHry == 3) ...[
             DraggableScrollableSheet(
@@ -252,8 +271,8 @@ PreferredSizeWidget _buildAppBar() {
               snap: true,
               builder: (BuildContext context, ScrollController scrollController) {
                 return ArchivMisePopup(
-                  miseData: dataMise,
-                  pocetBodu: trasaMise.length,
+                  miseData: c.mise, 
+                  pocetBodu: c.mise.trasa.length, 
                   scrollController: scrollController,
                   odehranyCas: c.getFormattedTime(),
                   uslaVzdalenost: c.getFormattedDistance(),

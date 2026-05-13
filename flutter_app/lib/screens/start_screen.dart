@@ -5,6 +5,7 @@ import '../widgets/app_bar.dart';
 import '../screens/ucet_screen.dart'; 
 import '../screens/seznam_tras_screen.dart';
 import '../screens/about_screen.dart'; 
+import '../data/mise_data.dart'; // PŘIDÁNO: Import dat, abychom měli přístup k 'vsechnyMise'
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
@@ -63,7 +64,8 @@ class StartScreen extends StatelessWidget {
           } else {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const MapaScreen()),
+              // UPRAVENO: Předáváme první misi jako výchozí
+              MaterialPageRoute(builder: (context) => MapaScreen(vybranaMise: vsechnyMise[0])),
             );
           }
         },
@@ -81,7 +83,8 @@ class StartScreen extends StatelessWidget {
           } else {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const MapaScreen()),
+              // UPRAVENO: Předáváme první misi jako výchozí
+              MaterialPageRoute(builder: (context) => MapaScreen(vybranaMise: vsechnyMise[0])),
             );
           }
         },

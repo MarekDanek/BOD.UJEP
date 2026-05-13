@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../data/mise_data.dart';
+import '../data/mise_data.dart'; // Očekává, že tady je definováno "vsechnyMise"
 import '../widgets/app_bar.dart';
+import 'mapa/mapa_screen.dart'; // PŘIDÁNO: Import mapy, abychom na ni mohli navigovat
 
 enum RazeniTras { nazevVzestupne, nazevSestupne, vzdalenost, cas }
 
@@ -16,8 +17,6 @@ class _SeznamTrasScreenState extends State<SeznamTrasScreen> {
   bool _zobrazitVyhledavani = false;
   String _searchQuery = '';
   RazeniTras _razeni = RazeniTras.nazevVzestupne;
-
-  final List<Mise> _vsechnyMise = [dataMise];
 
   @override
   void dispose() {
@@ -56,7 +55,8 @@ class _SeznamTrasScreenState extends State<SeznamTrasScreen> {
   }
 
   List<Mise> _getFiltrovaneARazeneMise() {
-    final vyfiltrovane = _vsechnyMise.where((mise) {
+    // UPRAVENO: Používá globální seznam 'vsechnyMise' místo lokální proměnné
+    final vyfiltrovane = vsechnyMise.where((mise) {
       final odpovidaVyhledavani = _searchQuery.isEmpty ||
           mise.nazev.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           mise.podnadpis.toLowerCase().contains(_searchQuery.toLowerCase());
@@ -208,64 +208,77 @@ class _SeznamTrasScreenState extends State<SeznamTrasScreen> {
                           separatorBuilder: (_, __) => const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             final mise = miseList[index];
-                            return Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFAED41),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.black, width: 2),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 6,
-                                    offset: Offset(0, 3),
+                            
+                            // PŘIDÁNO: GestureDetector, aby šlo na kartičku kliknout
+                            return GestureDetector(
+                              onTap: () {
+                                // Při kliknutí tě to hodí na mapu s vybranou misí
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => MapaScreen(vybranaMise: mise),
                                   ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    mise.nazev,
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFAED41),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Colors.black, width: 2),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 6,
+                                      offset: Offset(0, 3),
                                     ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    mise.podnadpis,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black87,
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      mise.nazev,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          mise.vzdalenost,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      mise.podnadpis,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            mise.vzdalenost,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          mise.cas,
-                                          textAlign: TextAlign.right,
-                                          style: const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
+                                        Expanded(
+                                          child: Text(
+                                            mise.cas,
+                                            textAlign: TextAlign.right,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           },
