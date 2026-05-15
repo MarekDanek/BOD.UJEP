@@ -111,9 +111,7 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
                 ? MarkerBuilder.buildNormalMarker(c.mise.trasa[i], () => c.onMarkerTap(i), jeBlizko: bodJeBlizko) 
                 : MarkerBuilder.buildBigMarker(c.mise.trasa[i])
           else if (i < c.aktualniBod - 1)
-            MarkerBuilder.buildPassedPointCircleMarkerWithOnTap(c.mise.trasa[i], () => c.onMarkerTap(i))
-          else
-            MarkerBuilder.buildNormalMarker(c.mise.trasa[i], () => c.onMarkerTap(i), jeBlizko: false),
+            MarkerBuilder.buildPassedPointCircleMarkerWithOnTap(c.mise.trasa[i], () => c.onMarkerTap(i)),
     ];
   }
 
