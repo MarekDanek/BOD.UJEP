@@ -20,7 +20,7 @@ class MapZoomButtons extends StatelessWidget {
           backgroundColor: const Color(0xFFFAED41),
           onPressed: () {
             final currentZoom = mapController.camera.zoom;
-            if (currentZoom < 18.5) {
+            if (currentZoom < 19) {
               mapController.move(mapController.camera.center, currentZoom + 1);
             }
           },
@@ -33,7 +33,7 @@ class MapZoomButtons extends StatelessWidget {
           backgroundColor: const Color(0xFFFAED41),
           onPressed: () {
             final currentZoom = mapController.camera.zoom;
-            if (currentZoom > 13.0) {
+            if (currentZoom > 10.0) {
               mapController.move(mapController.camera.center, currentZoom - 1);
             }
           },
