@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../data/mise_data.dart'; // Potřebujeme přístup k datům o bodech
+import '../data/mise_data.dart'; 
 
 class KonecMisePopup extends StatefulWidget {
   final List<BodMise> historieBodu;
   final String odehranyCas;
-  final Mise miseData; // <--- NOVÉ: Přidán objekt s daty o celé misi
+  final Mise miseData; 
   final VoidCallback onUzavrit;
   final VoidCallback onBonusy;
 
@@ -12,7 +12,7 @@ class KonecMisePopup extends StatefulWidget {
     super.key,
     required this.historieBodu,
     required this.odehranyCas,
-    required this.miseData, // <--- NOVÉ: Přidáno do konstruktoru
+    required this.miseData, 
     required this.onUzavrit,
     required this.onBonusy,
   });
@@ -96,6 +96,12 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
 
   // --- TADY JE ZÁVĚREČNÁ STRÁNKA S DYNAMICKOU STATISTIKOU ---
   Widget _buildZaverecneShrnuti() {
+    // Vezmeme si poslední bod trasy
+    final posledniBod = widget.historieBodu.last;
+    
+    // Zjistíme, jestli má tato mise alespoň jeden bod s bonusovou stránkou
+    final bool maBonusy = widget.historieBodu.any((bod) => bod.bonusoveStranky != null && bod.bonusoveStranky!.isNotEmpty);
+    
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -106,10 +112,13 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
               children: [
                 const Text('Mise splněna!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
                 const SizedBox(height: 16),
-                const Text(
-                  'Prošel jsem kampus. Menzu. Prostranství. Bankomat. Bufet. Malé zastávky velkého dne. Hudba dohrála. Cigareta pomalu dohořívá. A já jsem konečně dorazil tam, kam jsem měl namířeno od začátku. Do práce.',
-                  style: TextStyle(fontSize: 16, height: 1.3, color: Colors.black),
+                
+                // --- DYNAMICKÝ TEXT ---
+                Text(
+                  '${posledniBod.textCast1}\n\n${posledniBod.textCast2}',
+                  style: const TextStyle(fontSize: 16, height: 1.3, color: Colors.black),
                 ),
+                
                 const SizedBox(height: 30),
                 const Divider(color: Colors.black, thickness: 1),
                 const SizedBox(height: 10),
@@ -123,14 +132,14 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
                 ),
                 const SizedBox(height: 20),
 
-                // --- TADY JE TVOJE DYNAMICKÁ STATISTIKA Z DAT MISE ---
+                // --- DYNAMICKÁ STATISTIKA Z DAT MISE ---
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Center(
                         child: Text(
-                          widget.miseData.vzdalenost, // <--- Bere se dynamicky
+                          widget.miseData.vzdalenost,
                           style: const TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)
                         )
                       )
@@ -138,7 +147,7 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
                     Expanded(
                       child: Center(
                         child: Text(
-                          widget.odehranyCas, // <--- Bere se dynamicky
+                          widget.odehranyCas, 
                           style: const TextStyle(fontSize: 20, color: Colors.black, fontWeight: FontWeight.bold)
                         )
                       )
@@ -152,7 +161,7 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
                     Expanded(
                       child: Center(
                         child: Text(
-                          widget.miseData.obtiznost, // Přidána obtížnost jako v popupu
+                          widget.miseData.obtiznost,
                           style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold)
                         )
                       )
@@ -160,34 +169,39 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
                     Expanded(
                       child: Center(
                         child: Text(
-                          widget.miseData.typ, // <--- Bere se dynamicky typ
+                          widget.miseData.typ,
                           style: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold)
                         )
                       )
                     ),
                   ]
                 ),
-                // ----------------------------------------------------
 
                 const SizedBox(height: 30),
 
-                Center(
-                  child: OutlinedButton(
-                    onPressed: widget.onBonusy,
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.black, width: 1.5),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                // --- TLAČÍTKO BONUSY SE ZOBRAZÍ JEN KDYŽ MISE MÁ BONUSY ---
+                if (maBonusy) ...[
+                  Center(
+                    child: OutlinedButton(
+                      onPressed: widget.onBonusy,
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.black, width: 1.5),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                      ),
+                      child: const Text('Bonusy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
                     ),
-                    child: const Text('Bonusy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
                   ),
-                ),
-                const SizedBox(height: 30),
+                  const SizedBox(height: 30),
+                ],
               ],
             ),
           ),
 
-          Image.asset('assets/BOD5_1.png', width: double.infinity, height: 250, fit: BoxFit.cover),
+          // --- DYNAMICKÝ OBRÁZEK ---
+          if (posledniBod.obrazekCesta.isNotEmpty)
+            Image.asset(posledniBod.obrazekCesta, width: double.infinity, height: 250, fit: BoxFit.cover),
+            
           const SizedBox(height: 30),
 
           Center(
@@ -222,7 +236,6 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
               style: const TextStyle(fontSize: 18, height: 1.3, color: Colors.black),
             ),
             const SizedBox(height: 24),
-            // Pokud má bod obrázek, ukážeme ho
             if (bod.obrazekCesta.isNotEmpty)
               ClipRRect(
                 borderRadius: BorderRadius.circular(20),

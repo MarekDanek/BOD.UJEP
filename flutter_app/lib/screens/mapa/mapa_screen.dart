@@ -79,43 +79,50 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
       if (c.userLatLng != null)
         MarkerBuilder.buildUserMarker(c.userLatLng!, c.userHeading),
 
+      // --- NÁHLED (stav 0): ZOBRAZÍME VŠECHNY MISE NAJEDNOU ---
       if (c.stavHry == 0)
         for (var m in vsechnyMise) ...[
           MarkerBuilder.buildStartMarker(m, () => c.onMissionTap(m)),
           
+          // ZMĚNA: Zde se ošetřuje, jakou bublinu to má vyhodit po kliknutí
           if (c.zobrazitStartNahled && c.mise.nazev == m.nazev)
-            Marker(
-              point: LatLng(m.startLat, m.startLon),
-              width: 200, height: 105, alignment: Alignment.center, rotate: true,
-              child: FractionalTranslation(
-                translation: const Offset(0, -0.1),
-                child: StartNahledBublina(
-                  nazev: m.nazev, 
-                  podnadpis: m.podnadpis, 
-                  onTap: c.onStartPreviewTap,
+            if (c.miseDokoncena)
+              // KDYŽ JE HOTOVO: Zobrazí "Dokončená bublina". Její kliknutí vede na otevriArchivMise!
+              MarkerBuilder.buildDokoncenaBublinaMarker(m, c.otevriArchivMise)
+            else
+              // KDYŽ NENÍ HOTOVO: Zobrazí StartNáhledBublinu
+              Marker(
+                point: LatLng(m.startLat, m.startLon),
+                width: 200, height: 105, alignment: Alignment.center, rotate: true,
+                child: FractionalTranslation(
+                  translation: const Offset(0, -0.1),
+                  child: StartNahledBublina(
+                    nazev: m.nazev, 
+                    podnadpis: m.podnadpis, 
+                    onTap: c.onStartPreviewTap,
+                  ),
                 ),
-              ),
-            ),
-            
-          if (c.miseDokoncena && c.mise.nazev == m.nazev)
-            MarkerBuilder.buildDokoncenaBublinaMarker(m, () => c.onMissionTap(m)),
+              )
         ],
 
+      // --- HRA (stav > 0): ZOBRAZÍME BODY POSTUPNĚ ---
       if (c.stavHry > 0)
         for (int i = 0; i < c.mise.trasa.length; i++)
           if (c.stavHry == 3)
             MarkerBuilder.buildPassedPointCircleMarkerWithOnTap(c.mise.trasa[i], () => DialogManager.ukazPribehPopup(
                 context: context, historieBodu: c.mise.trasa.sublist(0, i + 1), miseData: c.mise, onPokracovat: () {}))
+          
           else if (i == c.aktualniBod - 1)
             c.stavHry == 1 
                 ? MarkerBuilder.buildNormalMarker(c.mise.trasa[i], () => c.onMarkerTap(i), jeBlizko: bodJeBlizko) 
                 : MarkerBuilder.buildBigMarker(c.mise.trasa[i])
+          
           else if (i < c.aktualniBod - 1)
             MarkerBuilder.buildPassedPointCircleMarkerWithOnTap(c.mise.trasa[i], () => c.onMarkerTap(i)),
     ];
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     final bool bodJeBlizko = c.userLatLng != null && c.stavHry != 0 && VzdalenostBodu.jeUBodu(
         userLat: c.userLatLng!.latitude, userLon: c.userLatLng!.longitude, cilovyBod: c.mise.trasa[c.aktualniBod-1], perimetrMetry: 12);
@@ -213,7 +220,8 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
           if (c.locationError != null) GpsErrorPanel(errorText: c.locationError!, onRetry: c.startLocationTracking),
           Positioned(top: 20, right: 20, child: MapZoomButtons(mapController: c.mapController)),
 
-          if (c.miseDokoncena && (c.stavHry == 0 || c.stavHry == 3))
+          // --- OPRAVA TADY: Tlačítko se ukáže POUZE ve stavu 3 (když je otevřená archivní trasa mise) ---
+          if (c.stavHry == 3)
             Positioned(
               top: 20, left: 20,
               child: ElevatedButton.icon(
