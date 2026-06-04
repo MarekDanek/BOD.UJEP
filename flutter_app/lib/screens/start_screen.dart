@@ -186,14 +186,16 @@ class StartScreen extends StatelessWidget {
                 ),
                 // --------------------------
 
-                const Spacer(),
-                Center(
-                  child: Image.asset(
-                    'assets/trpaslik.png',
-                    fit: BoxFit.contain,
+               
+                Padding(
+                  padding: const EdgeInsets.only(top:100),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/trpaslik.png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 20),
               ],
             ),
           ),
