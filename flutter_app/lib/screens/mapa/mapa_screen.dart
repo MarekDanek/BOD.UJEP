@@ -93,12 +93,17 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
               // KDYŽ NENÍ HOTOVO: Zobrazí StartNáhledBublinu
               Marker(
                 point: LatLng(m.startLat, m.startLon),
-                width: 200, height: 105, alignment: Alignment.center, rotate: true,
+                width: 240,
+                height: 140,
+                alignment: Alignment.center,
+                rotate: true,
                 child: FractionalTranslation(
                   translation: const Offset(0, -0.1),
                   child: StartNahledBublina(
-                    nazev: m.nazev, 
-                    podnadpis: m.podnadpis, 
+                    nazev: m.nazev,
+                    podnadpis: m.podnadpis,
+                    lat: m.startLat,
+                    lon: m.startLon,
                     onTap: c.onStartPreviewTap,
                   ),
                 ),
