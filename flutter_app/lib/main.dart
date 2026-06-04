@@ -1,11 +1,14 @@
 import 'package:bod_ujep_app/screens/start_screen.dart';
-import 'package:bod_ujep_app/admin/screens/login_screen.dart'; // Import tvého login souboru
+import 'package:bod_ujep_app/admin/screens/login_screen.dart'; 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 // Firebase importy
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+
+// Přidán import pro naše načítání dat
+import 'package:bod_ujep_app/data/mise_data.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,8 +39,24 @@ class BodUjepApp extends StatelessWidget {
       },
       // Rozcestník na web nebo Aplikaci
       home: kIsWeb
-          ? const LoginScreen() // Použije třídu z admin/screens/login_screen.dart
-          : const StartScreen(), // Na mobilu hra
+          ? const LoginScreen() // Pro admin zůstává přihlášení
+          : FutureBuilder(
+              // ZDE SE ZASTAVÍME A STÁHNEME DATA ONLINE:
+              future: nactiMiseZFirebase(),
+              builder: (context, snapshot) {
+                // Dokud stahujeme, ukaž hráči Loading...
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Scaffold(
+                    backgroundColor: Color(0xFFFAED41),
+                    body: Center(
+                      child: CircularProgressIndicator(color: Colors.black),
+                    ),
+                  );
+                }
+                // Jakmile je staženo, pusť ho do mapy/menu!
+                return const StartScreen();
+              },
+            ), 
     );
   }
 }

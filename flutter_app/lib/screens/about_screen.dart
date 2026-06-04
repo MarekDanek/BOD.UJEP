@@ -55,7 +55,7 @@ class AboutScreen extends StatelessWidget {
                 // --- SEKCE: AUTOŘI ---
                 _buildSectionTitle('Autoři'),
                 _buildSectionBody(
-                  '• Vývoj: Marek Daněk\n'
+                  '• Vývoj: Marek Daněk, Kubka Dupkas\n'
                   '• Grafika: ...\n'
                   '• Koordinace: ...'
                 ),
