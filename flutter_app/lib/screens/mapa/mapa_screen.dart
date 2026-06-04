@@ -173,9 +173,10 @@ class _MapaScreenState extends State<MapaScreen> with SingleTickerProviderStateM
             ],
           ),
           Positioned(
-          right: 16,
-          bottom: 16,
+          right: 22,
+          top: 140,
           child: CenterUserButton(
+          size: 40,
           isFollowing: c.followUser,
           stavHry: c.stavHry,
           onPressed: c.centerOnUser,
