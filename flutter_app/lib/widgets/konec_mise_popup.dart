@@ -96,9 +96,6 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
 
   // --- TADY JE ZÁVĚREČNÁ STRÁNKA, KTERÁ UŽ ČTE DATA Z TVÉ DATABÁZE ---
   Widget _buildZaverecneShrnuti() {
-    // Zjistíme, jestli má tato mise alespoň jeden bod s bonusovou stránkou
-    final bool maBonusy = widget.historieBodu.any((bod) => bod.bonusoveStranky != null && bod.bonusoveStranky!.isNotEmpty);
-    
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -114,7 +111,7 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
                 ),
                 const SizedBox(height: 16),
                 
-                // ČTEME HLAVNÍ TEXT Z DATABÁZE ("splnil jsi to brasko")
+                // ČTEME HLAVNÍ TEXT Z DATABÁZE
                 Text(
                   widget.miseData.zaverecnyText,
                   style: const TextStyle(fontSize: 16, height: 1.3, color: Colors.black),
@@ -180,21 +177,19 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
 
                 const SizedBox(height: 30),
 
-                // --- TLAČÍTKO BONUSY SE ZOBRAZÍ JEN KDYŽ MISE MÁ BONUSY ---
-                if (maBonusy) ...[
-                  Center(
-                    child: OutlinedButton(
-                      onPressed: widget.onBonusy,
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.black, width: 1.5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                      ),
-                      child: const Text('Bonusy', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+                // --- TLAČÍTKO BONUSY (ZOBRAZENO VŽDY) ---
+                Center(
+                  child: OutlinedButton(
+                    onPressed: widget.onBonusy,
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.black, width: 1.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 12),
                     ),
+                    child: const Text('Bonusy', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
                   ),
-                  const SizedBox(height: 30),
-                ],
+                ),
+                const SizedBox(height: 30),
               ],
             ),
           ),
@@ -232,9 +227,9 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.black, width: 1.5),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 14),
               ),
-              child: const Text('Uzavřít', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+              child: const Text('Uzavřít', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
             ),
           ),
           const SizedBox(height: 80),
