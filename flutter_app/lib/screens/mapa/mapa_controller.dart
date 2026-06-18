@@ -125,11 +125,9 @@ class MapaController with WidgetsBindingObserver {
           celkovyCasSekundy = prefs.getInt('${_klic}_cas') ?? 0;
           celkovaVzdalenostMetry = prefs.getDouble('${_klic}_vzdalenost') ?? 0.0;
           
-          // ZMĚNA: Už nejdeme rovnou do archivu! Zůstaneme v náhledu (stavHry = 0).
           stavHry = 0; 
           
           if (isInit) {
-            // Pokud aplikaci spouštíme z menu u hotové mise, ukážeme rovnou bublinu
             zobrazitStartNahled = true;
           }
         } else {
@@ -303,7 +301,10 @@ class MapaController with WidgetsBindingObserver {
   }
 
   Future<void> vypocitejTrasu() async {
-    if (userLatLng == null || aktualniBod > mise.trasa.length) return;
+    // KONTROLA: Zabrání výpočtu, pokud hledáme bod, který neexistuje
+    if (userLatLng == null || aktualniBod > mise.trasa.length) {
+      return; 
+    }
     final cilovyBod = mise.trasa[aktualniBod - 1];
     final novaTrasa = await LogikaCesty.ziskejTrasuPoChodniku([userLatLng!, LatLng(cilovyBod.lat, cilovyBod.lon)]);
     if (isMounted()) zmenStav(() => trasaPoChodniku = novaTrasa);
@@ -311,7 +312,7 @@ class MapaController with WidgetsBindingObserver {
 
   Future<void> vypocitejHistorickouTrasu() async {
     try {
-      final List<LatLng> body = (stavHry == 3)
+      final List<LatLng> body = (stavHry == 3 || aktualniBod > mise.trasa.length)
           ? mise.trasa.map((b) => LatLng(b.lat, b.lon)).toList()
           : (aktualniBod < 2) ? [] : mise.trasa.sublist(0, aktualniBod).map((b) => LatLng(b.lat, b.lon)).toList();
 
@@ -346,7 +347,6 @@ class MapaController with WidgetsBindingObserver {
     if (aktualniBod > 1) vypocitejHistorickouTrasu();
   }
 
-  // ZMĚNA: Nová funkce pro přechod z "hotové" bubliny do archivu s čárou
   void otevriArchivMise() {
     zmenStav(() {
       stavHry = 3;
@@ -356,16 +356,23 @@ class MapaController with WidgetsBindingObserver {
     vypocitejHistorickouTrasu();
   }
 
+  // --- OPRAVENÁ FUNKCE PRO PŘECHOD NA DALŠÍ BOD ---
   void posunNaDalsiBod() {
+    // Zkontrolujeme, zda ještě MÁME nějaký další bod
     if (aktualniBod < mise.trasa.length) {
       zmenStav(() => aktualniBod++);
       prepniNaStav(1);
       vypocitejTrasu();
       vypocitejHistorickouTrasu();
     } else {
+      // Pokud NE, jsme na konci mise!
       if (startTime != null) {
-        celkovyCasSekundy = DateTime.now().difference(startTime!).inSeconds;
+        final odpracovano = DateTime.now().difference(startTime!).inSeconds;
+        celkovyCasSekundy += odpracovano; // Přičteme čas
+        startTime = null; // Zastavíme stopky
       }
+      
+      // Místo zvyšování čísla bodu rovnou zobrazíme popup
       zobrazKonecMise();
     }
   }
@@ -418,16 +425,14 @@ class MapaController with WidgetsBindingObserver {
     if (stavHry != 0 && stavHry != 3) return;
     
     if (mise.nazev == vybrana.nazev && stavHry == 0) {
-      // Klikáme na tečku (start marker) už vybrané mise - jen zapneme/vypneme bublinu
       zmenStav(() => zobrazitStartNahled = !zobrazitStartNahled);
     } else {
-      // Klikáme na tečku úplně jiné mise
       zmenStav(() {
         mise = vybrana;
-        zobrazitStartNahled = true; // Hned po výběru se ukáže příslušná bublina
+        zobrazitStartNahled = true; 
         trasaPoChodniku.clear();
         pevnaTrasa.clear();
-        stavHry = 0; // Vždy se vracíme do náhledu
+        stavHry = 0; 
       });
       await loadMiseState(isInit: false);
     }

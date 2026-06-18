@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Mise {
-  final String idMise; // Nově přidáno (ukládá název dokumentu, např. 'kunes')
+  final String idMise; 
   final String nazev;
   final String podnadpis;
   final String textCast1;
@@ -16,6 +16,12 @@ class Mise {
   final double startLat;
   final double startLon;
   final List<BodMise> trasa;
+
+  // --- NOVÁ POLE PRO ZÁVĚR MISE ---
+  final String zaverecnyNadpis;
+  final String zaverecnyText;
+  final String zaverecnyObrazek;
+  final String zaverecnaHudba;
 
   Mise({
     this.idMise = '',
@@ -33,6 +39,10 @@ class Mise {
     required this.startLat,
     required this.startLon,
     required this.trasa,
+    required this.zaverecnyNadpis,
+    required this.zaverecnyText,
+    required this.zaverecnyObrazek,
+    required this.zaverecnaHudba,
   });
 
   // TOVÁRNÍ METODA: Vyrobí Misi z dat stažených z Firebase
@@ -50,10 +60,15 @@ class Mise {
       cas: json['cas']?.toString() ?? '',
       bonusy: json['bonusy']?.toString() ?? '',
       typ: json['typ']?.toString() ?? '',
-      // Bezpečná konverze čísel
       startLat: json['startLat'] != null ? (json['startLat'] as num).toDouble() : 50.6647478,
       startLon: json['startLon'] != null ? (json['startLon'] as num).toDouble() : 14.0258906,
       trasa: nactenaTrasa,
+      
+      // Bezpečné načtení nových polí s výchozími hodnotami pro staré mise
+      zaverecnyNadpis: json['zaverecnyNadpis']?.toString() ?? 'Mise splněna!',
+      zaverecnyText: json['zaverecnyText']?.toString() ?? 'Skvělá práce! Prošel jsi celou trasu.',
+      zaverecnyObrazek: json['zaverecnyObrazek']?.toString() ?? 'assets/placeholder_bod.png',
+      zaverecnaHudba: json['zaverecnaHudba']?.toString() ?? '',
     );
   }
 }
@@ -126,7 +141,6 @@ class BodMise {
     this.obrazkyMise,
   });
 
-  // TOVÁRNÍ METODA: Vyrobí BodMise z dat v podkolekci Firebase
   factory BodMise.fromJson(Map<String, dynamic> json) {
     return BodMise(
       id: json['id'] is int ? json['id'] : int.tryParse(json['id'].toString()) ?? 0,
@@ -157,35 +171,25 @@ class ZiskanyBonus {
 }
 
 // -------------------------------------------------------------
-// GLOBÁLNÍ SEZNAM (Bude prázdný, dokud ho Firebase nenaplní)
 List<Mise> vsechnyMise = [];
 
-// HLAVNÍ FUNKCE PRO STAŽENÍ DAT Z FIREBASE
 Future<void> nactiMiseZFirebase() async {
   try {
-    // 1. Stáhneme všechny dokumenty v hlavní kolekci 'mise'
     final querySnapshot = await FirebaseFirestore.instance.collection('mise').get();
     List<Mise> nacteneMise = [];
 
     for (var doc in querySnapshot.docs) {
       final data = doc.data();
-
-      // 2. Pro každou misi sáhneme dovnitř do její podkolekce 'body'
       final bodySnapshot = await doc.reference.collection('body').get();
       
-      // 3. Převedeme JSON na tvé objekty BodMise
       List<BodMise> trasa = bodySnapshot.docs.map((bodDoc) {
         return BodMise.fromJson(bodDoc.data());
       }).toList();
 
-      // 4. Seřadíme body podle ID (1, 2, 3...) aby šly popořadě
       trasa.sort((a, b) => a.id.compareTo(b.id));
-
-      // 5. Poskládáme celou misi i s trasou a přidáme ji do seznamu
       nacteneMise.add(Mise.fromJson(data, doc.id, trasa));
     }
 
-    // Načtení dokončeno, uložíme do globální proměnné!
     vsechnyMise = nacteneMise;
     print('ÚSPĚCH: Načteno ${vsechnyMise.length} misí z Firebase!');
   } catch (e) {

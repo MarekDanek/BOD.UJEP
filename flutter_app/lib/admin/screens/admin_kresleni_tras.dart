@@ -42,8 +42,14 @@ class _KresleniTrasyScreenState extends State<KresleniTrasyScreen> {
   final _bonusyCtrl = TextEditingController(text: '0 bonusů');
   final _obrazekCtrl = TextEditingController(text: 'assets/MiseKunes_1.png');
 
+  // --- NOVÁ DATA PRO ZÁVĚR MISE ---
+  final _zaverNadpisCtrl = TextEditingController(text: 'Mise splněna!');
+  final _zaverTextCtrl = TextEditingController();
+  final _zaverObrazekCtrl = TextEditingController(text: 'assets/MiseKunes_3.png');
+  final _zaverHudbaCtrl = TextEditingController();
+
   // Seznam bodů (zastávek)
-  List<PracovniBod> _vytvoreneBody = [];
+  final List<PracovniBod> _vytvoreneBody = [];
   int? _vybranyIndexBodu;
 
   bool _ukladaSe = false;
@@ -56,6 +62,8 @@ class _KresleniTrasyScreenState extends State<KresleniTrasyScreen> {
     _vzdalenostCtrl.dispose(); _pocetBoduCtrl.dispose();
     _typCtrl.dispose(); _barvaCtrl.dispose();
     _bonusyCtrl.dispose(); _obrazekCtrl.dispose();
+    _zaverNadpisCtrl.dispose(); _zaverTextCtrl.dispose(); 
+    _zaverObrazekCtrl.dispose(); _zaverHudbaCtrl.dispose();
     super.dispose();
   }
 
@@ -97,6 +105,11 @@ class _KresleniTrasyScreenState extends State<KresleniTrasyScreen> {
         // Extra pozice startu pro mapu
         'startLat': _vytvoreneBody.first.pozice.latitude,
         'startLon': _vytvoreneBody.first.pozice.longitude,
+        // --- UKLÁDÁNÍ ZÁVĚRU DO FIREBASE ---
+        'zaverecnyNadpis': _zaverNadpisCtrl.text.trim(),
+        'zaverecnyText': _zaverTextCtrl.text.trim(),
+        'zaverecnyObrazek': _zaverObrazekCtrl.text.trim(),
+        'zaverecnaHudba': _zaverHudbaCtrl.text.trim(),
       };
 
       // Uložení hlavní mise do kolekce 'mise'
@@ -131,6 +144,8 @@ class _KresleniTrasyScreenState extends State<KresleniTrasyScreen> {
         _text1Ctrl.clear(); _text2Ctrl.clear();
         _casCtrl.clear(); _vzdalenostCtrl.clear();
         _obtiznostCtrl.clear(); _typCtrl.clear();
+        _zaverNadpisCtrl.text = 'Mise splněna!'; _zaverTextCtrl.clear(); 
+        _zaverObrazekCtrl.text = ''; _zaverHudbaCtrl.clear();
         _ukladaSe = false;
       });
 
@@ -161,7 +176,7 @@ class _KresleniTrasyScreenState extends State<KresleniTrasyScreen> {
             width: 400,
             color: Colors.grey[100],
             child: DefaultTabController(
-              length: 2,
+              length: 3,
               child: Column(
                 children: [
                   const TabBar(
@@ -170,6 +185,7 @@ class _KresleniTrasyScreenState extends State<KresleniTrasyScreen> {
                     tabs: [
                       Tab(text: "INFO O MISI"),
                       Tab(text: "ZASTÁVKY (BODY)"),
+                      Tab(text: "ZÁVĚR MISE"),
                     ],
                   ),
                   Expanded(
@@ -206,12 +222,7 @@ class _KresleniTrasyScreenState extends State<KresleniTrasyScreen> {
                             ),
                             TextField(controller: _obrazekCtrl, decoration: const InputDecoration(labelText: "Cesta k obrázku (zatím jen text)")),
                             const SizedBox(height: 20),
-                            ElevatedButton.icon(
-                              onPressed: _ukladaSe ? null : _ulozitCelouMisi,
-                              icon: const Icon(Icons.cloud_upload),
-                              label: Text(_ukladaSe ? "Ukládám..." : "ULOŽIT MISI DO DATABÁZE"),
-                              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFAED41), foregroundColor: Colors.black, padding: const EdgeInsets.all(16)),
-                            )
+                            // ODSTRANĚNO Ukládací tlačítko z první záložky
                           ],
                         ),
 
@@ -275,7 +286,27 @@ class _KresleniTrasyScreenState extends State<KresleniTrasyScreen> {
                                 controller: TextEditingController(text: _vytvoreneBody[_vybranyIndexBodu!].bonusAudioPath),
                               ),
                             ],
-                          )
+                          ),
+                          
+                        // TAB 3: ZÁVĚR MISE (ZDE TVOŘÍŠ POPUP)
+                        ListView(
+                          padding: const EdgeInsets.all(16),
+                          children: [
+                            const Text("Obsah finálního vyskakovacího okna:", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                            const SizedBox(height: 10),
+                            TextField(controller: _zaverNadpisCtrl, decoration: const InputDecoration(labelText: "Závěrečný nadpis (např. Mise splněna!)")),
+                            TextField(controller: _zaverTextCtrl, maxLines: 4, decoration: const InputDecoration(labelText: "Závěrečný příběhový text (shrnutí mise)")),
+                            TextField(controller: _zaverObrazekCtrl, decoration: const InputDecoration(labelText: "Cesta k finálnímu obrázku (např. assets/konec.png)")),
+                            TextField(controller: _zaverHudbaCtrl, decoration: const InputDecoration(labelText: "Cesta k závěrečné hudbě (nepovinné)")),
+                            const SizedBox(height: 40),
+                            ElevatedButton.icon(
+                              onPressed: _ukladaSe ? null : _ulozitCelouMisi,
+                              icon: const Icon(Icons.cloud_upload),
+                              label: Text(_ukladaSe ? "Ukládám..." : "ULOŽIT CELOU MISI DO DATABÁZE"),
+                              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFAED41), foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 20)),
+                            )
+                          ],
+                        )
                       ],
                     ),
                   ),

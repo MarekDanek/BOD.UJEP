@@ -94,11 +94,8 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
     );
   }
 
-  // --- TADY JE ZÁVĚREČNÁ STRÁNKA S DYNAMICKOU STATISTIKOU ---
+  // --- TADY JE ZÁVĚREČNÁ STRÁNKA, KTERÁ UŽ ČTE DATA Z TVÉ DATABÁZE ---
   Widget _buildZaverecneShrnuti() {
-    // Vezmeme si poslední bod trasy
-    final posledniBod = widget.historieBodu.last;
-    
     // Zjistíme, jestli má tato mise alespoň jeden bod s bonusovou stránkou
     final bool maBonusy = widget.historieBodu.any((bod) => bod.bonusoveStranky != null && bod.bonusoveStranky!.isNotEmpty);
     
@@ -110,12 +107,16 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Mise splněna!', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)),
+                // ČTEME NADPIS Z DATABÁZE
+                Text(
+                  widget.miseData.zaverecnyNadpis, 
+                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.black)
+                ),
                 const SizedBox(height: 16),
                 
-                // --- DYNAMICKÝ TEXT ---
+                // ČTEME HLAVNÍ TEXT Z DATABÁZE ("splnil jsi to brasko")
                 Text(
-                  '${posledniBod.textCast1}\n\n${posledniBod.textCast2}',
+                  widget.miseData.zaverecnyText,
                   style: const TextStyle(fontSize: 16, height: 1.3, color: Colors.black),
                 ),
                 
@@ -198,9 +199,30 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
             ),
           ),
 
-          // --- DYNAMICKÝ OBRÁZEK ---
-          if (posledniBod.obrazekCesta.isNotEmpty)
-            Image.asset(posledniBod.obrazekCesta, width: double.infinity, height: 250, fit: BoxFit.cover),
+          // --- DYNAMICKÝ OBRÁZEK Z DATABÁZE (S POJISTKOU PROTI PÁDU) ---
+          if (widget.miseData.zaverecnyObrazek.isNotEmpty)
+            Image.asset(
+              widget.miseData.zaverecnyObrazek, 
+              width: double.infinity, 
+              height: 250, 
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                // Tato část zabrání pádu aplikace, pokud obrázek ve složce assets ještě fyzicky nemáš!
+                return Container(
+                  width: double.infinity,
+                  height: 250,
+                  color: Colors.black12,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.image_not_supported, size: 50, color: Colors.black54),
+                      const SizedBox(height: 10),
+                      Text("Obrázek nenalezen:\n${widget.miseData.zaverecnyObrazek}", textAlign: TextAlign.center, style: const TextStyle(color: Colors.black54)),
+                    ],
+                  ),
+                );
+              },
+            ),
             
           const SizedBox(height: 30),
 
@@ -243,6 +265,10 @@ class _KonecMisePopupState extends State<KonecMisePopup> {
                   bod.obrazekCesta,
                   width: double.infinity,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: double.infinity, height: 200, color: Colors.black12,
+                    child: const Center(child: Icon(Icons.image_not_supported, color: Colors.black54)),
+                  ),
                 ),
               ),
             const SizedBox(height: 24),
