@@ -1,6 +1,0 @@
-node_modules/
-web/node_modules/
-.next/
-web/.next/
-prisma/dev.db
-.env
